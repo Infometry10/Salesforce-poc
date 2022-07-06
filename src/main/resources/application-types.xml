@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="CreateAccount" format="json">
+      <types:shape format="weave" example="examples/Account-1.json"><![CDATA[%dw 2.0
+
+type CreateAccount = Array<{|  name: String,   billingCity: String,   number: String,   billingCountry: String|}> {"example": "[{\\\"name\\\":\\\"Sumanth Dasari\\\",\\\"billingCity\\\":\\\"London\\\",\\\"number\\\":\\\"222-3333\\\",\\\"billingCountry\\\":\\\"United Kingdom\\\"},{\\\"name\\\":\\\"Suraj Paliwal\\\",\\\"billingCity\\\":\\\"Miami\\\",\\\"number\\\":\\\"444-5555\\\",\\\"billingCountry\\\":\\\"United States\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="UpsertAccount" format="json">
+      <types:shape format="weave" example="examples/Account1.json"><![CDATA[%dw 2.0
+
+type UpsertAccount = Array<{|  id: String,   name: String,   billingCity: String,   number: String,   billingCountry: String,   billingState: String|}> {"example": "[{\\\"id\\\":\\\"0015j00000g6aJdAAI\\\",\\\"name\\\":\\\"Sumanth\\\",\\\"billingCity\\\":\\\"London\\\",\\\"number\\\":\\\"111-2222\\\",\\\"billingCountry\\\":\\\"United Kingdom\\\",\\\"billingState\\\":\\\"UK\\\"},{\\\"id\\\":\\\"0015j00000g6aJeAAI\\\",\\\"name\\\":\\\"Suraj\\\",\\\"billingCity\\\":\\\"Miami\\\",\\\"number\\\":\\\"444-5555\\\",\\\"billingCountry\\\":\\\"United States\\\",\\\"billingState\\\":\\\"US\\\"},{\\\"id\\\":\\\"none\\\",\\\"name\\\":\\\"Gokul\\\",\\\"billingCity\\\":\\\"Pune\\\",\\\"number\\\":\\\"555-6666\\\",\\\"billingCountry\\\":\\\"India\\\",\\\"billingState\\\":\\\"IND\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#275b4891-c46c-4a8f-8130-639f1e025040">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="CreateAccount"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

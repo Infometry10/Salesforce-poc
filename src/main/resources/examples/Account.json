@@ -1,0 +1,13 @@
+[{
+"name": "Sumanth Dasari",
+"billingState": "UK",
+"number": "222-3333",
+"type": "Customer-Direct"
+},
+{
+"name": "Suraj Paliwal",
+"billingState": "US",
+"number": "444-5555",
+"type": "Customer-Channel"
+}
+]

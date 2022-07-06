@@ -1,0 +1,1255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="7b8af81f-a640-44bd-9893-69df35980104" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="481fea6a-0413-4456-bdc3-e873dc76ab48" fetchAllApexRestMetadata="true">
+		<salesforce:basic-connection username="lionelmessi0099@gmail.com" password="Wednesday@123456" securityToken="IWnDNO71GggGrFmpmDXlCjck" />
+	</salesforce:sfdc-config>
+	<flow name="salesforce-pocFlow" doc:id="f8dca357-4f5b-40af-a190-8e3c4fad2e72" >
+		<http:listener doc:name="/query" doc:id="38437eec-bf67-4d1d-b1d9-f5f18c296973" config-ref="HTTP_Listener_config" path="/query"/>
+		<salesforce:query doc:name="Query" doc:id="5031a5d9-106a-4d0a-b6bf-2d92b5d43548" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[Select Name,BillingState,Phone,Type,OwnerID from Account where Name=':Name']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	Name : "Prathamesh"
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="cc4d33fa-1843-4367-a1fa-53125a6b6767" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow1" doc:id="e27d21d5-98bb-4caf-b4cc-1ba0414e941d" >
+		<http:listener doc:name="/create" doc:id="0da28ea8-c9b9-46fa-abd3-d9a595be0357" config-ref="HTTP_Listener_config" path="/create"/>
+		<ee:transform doc:name="Transform Message" doc:id="efa2d812-3401-4223-80cf-8b4707a64d61" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Name: $.name,
+	Phone: $.number,
+	BillingCity: $.billingCity,
+	BillingCountry: $.billingCountry
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="Account" doc:name="Create" doc:id="9e61a1fb-53d9-4c20-8d0d-0691fa424850" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="bb233389-6ba9-4051-9704-ff82222156e0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow2" doc:id="9db984da-c27e-43f7-a151-af576bec0a10" >
+		<http:listener doc:name="/upsert" doc:id="f74f528b-43af-45e7-b233-07f87415e519" config-ref="HTTP_Listener_config" path="/upsert"/>
+		<ee:transform doc:name="Transform Message" doc:id="05959005-fba3-45ed-b520-edce1ce364ad" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Id: $.id,
+	Name: $.name,
+	BillingCity: $.billingCity,
+	Phone: $.number,
+	BillingCountry: $.billingCountry,
+	BillingState: $.billingState
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert objectType="Account" externalIdFieldName="Id" doc:name="Upsert" doc:id="2a29886f-a163-419d-8547-51ba1349cae5" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="1d3e1892-e71a-4173-85d6-9e0826524ab0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow3" doc:id="e69e92dd-1d87-4653-bb02-2e04eb0b3d87" >
+		<http:listener doc:name="/delete" doc:id="da0aaec1-cf5f-4ef8-b738-23fc51fcc28e" config-ref="HTTP_Listener_config" path="/delete"/>
+		<salesforce:delete doc:name="Delete" doc:id="0845e70e-2c08-41a6-9682-e7cd4cfd6103" config-ref="Salesforce_Config">
+			<salesforce:ids ><![CDATA[#[["0015j00000g6aJdAAI"]]]]></salesforce:ids>
+		</salesforce:delete>
+		<ee:transform doc:name="Transform Message" doc:id="1253be2c-c17c-4e14-9ae3-0d6d71473c6c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow4" doc:id="0f950922-91af-4085-8d56-6811f5747618" >
+		<http:listener doc:name="/createjob" doc:id="46d6fc7a-1eba-4d73-9da8-362bec3c32d2" config-ref="HTTP_Listener_config" path="/createjob"/>
+		<ee:transform doc:name="Transform Message" doc:id="cc4b9419-66e3-4fe7-ba5c-d99a5d65d12c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+    "externalIdFieldName": "ExternalId",
+    "contentType" : "JSON",
+    "concurrencyMode": "Serial"  //Serial or Parallel
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-job operation="insert" doc:name="Create job" doc:id="af22e0e0-b202-4fa6-8914-fb730a25d258" config-ref="Salesforce_Config" type="Account">
+			<salesforce:create-job-request ><![CDATA[#[payload]]]></salesforce:create-job-request>
+		</salesforce:create-job>
+		<ee:transform doc:name="Transform Message" doc:id="d7ab344c-26e9-4dd8-aa12-5fc6c7174336" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow5" doc:id="fb294474-692a-44ec-8892-395337df986f" >
+		<http:listener doc:name="/abortjob" doc:id="7739af59-3415-401e-8685-f6a68eff44cd" config-ref="HTTP_Listener_config" path="/abortjob"/>
+		<salesforce:abort-job doc:name="Abort job" doc:id="d866b135-9831-46bd-91fd-212e3e002915" config-ref="Salesforce_Config" jobId="7505j000005rdfHAAQ"/>
+		<ee:transform doc:name="Transform Message" doc:id="ac7880b4-5ce0-4dbb-800b-124f6e8ff176" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow6" doc:id="50807277-9289-41c2-9c42-a17cac7283e9" >
+		<http:listener doc:name="/jobbulkapi" doc:id="3b43db77-081c-42d1-aee2-87cc6ebfdb08" config-ref="HTTP_Listener_config" path="/jobbulkapi"/>
+		<ee:transform doc:name="Transform Message" doc:id="1eceda18-737f-4626-b1ba-4ffa16b19e11" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	Id: "0015j00000WdvP7AAJ",
+	IsDeleted: false,
+	Name: "Prathamesh",
+	Type: "Customer-Direct",
+	BillingState: "UK",
+	Phone: "222-8987"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-job-bulk-api-v2 objectType="Account" operation="insert" doc:name="Create job bulk api v 2" doc:id="7e931d5a-3df9-4762-b737-6ee0c0f5002d" config-ref="Salesforce_Config" externalIdFieldName="Id"/>
+		<ee:transform doc:name="Transform Message" doc:id="dd5941d4-34be-4194-be69-f813ef952aa9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow7" doc:id="2421cb99-d71b-4bfe-ab3c-2c057cf5e7ad" >
+		<http:listener doc:name="/queryjob" doc:id="7b02fc13-2925-4fe7-baca-dbdec7e5d212" config-ref="HTTP_Listener_config" path="/queryjob"/>
+		<salesforce:create-query-job-bulk-api-v2 doc:name="Create query job bulk api v 2" doc:id="2aad170c-cc2f-4a44-910b-55a604afa468" config-ref="Salesforce_Config" query='SELECT Id FROM Account'/>
+		<ee:transform doc:name="Transform Message" doc:id="45651a15-f9be-4d9e-9e93-8378c8cc393c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow8" doc:id="07d59982-be21-4c2f-ac80-81f1556992a2" >
+		<http:listener doc:name="/deletebulkapi" doc:id="2181c488-6576-4e70-8cdc-5586e0722471" config-ref="HTTP_Listener_config" path="/deletebulkapi"/>
+		<salesforce:delete-job-bulk-api-v2 doc:name="Delete job bulk api v 2" doc:id="3e69f664-21cd-489d-908c-ec21b47a2698" config-ref="Salesforce_Config" id="7505j000005rairAAA"/>
+		<ee:transform doc:name="Transform Message" doc:id="83e9d806-ab39-46d4-8ee7-61d0cae8b212" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow9" doc:id="7c867fe4-74e5-4135-8fe8-60bd988c1217" >
+		<http:listener doc:name="/deletequeryjob" doc:id="227446f8-1e9a-4128-b8df-5626c0db6181" config-ref="HTTP_Listener_config" path="/deletequeryjob"/>
+		<salesforce:delete-query-job-bulk-api-v2 doc:name="Delete query job bulk api v 2" doc:id="1a27d9f8-e74b-4e24-9d46-cf91fda073b4" config-ref="Salesforce_Config" id="7505j000005raXUAAY"/>
+		<ee:transform doc:name="Transform Message" doc:id="7d1e944b-ffad-4dfd-a39d-fd148bd4a1e9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow10" doc:id="691b9171-45ac-4fe4-8925-d8728ca93581" >
+		<http:listener doc:name="/changepassword" doc:id="923ffa2b-d93b-4fb5-bd33-3b40ebba92bc" config-ref="HTTP_Listener_config" path="/changepassword"/>
+		<salesforce:change-own-password doc:name="Change own password" doc:id="88a53bb3-aeac-407c-b253-c1d8c090fd74" config-ref="Salesforce_Config" oldPassword="Today@123456" newPassword="Monday@123456"/>
+		<ee:transform doc:name="Transform Message" doc:id="a1dbaa35-c8e7-492f-9492-7f7209a8f200" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow11" doc:id="7c216104-2fdd-4bfd-bf50-a93aa4ace6e5" >
+		<http:listener doc:name="/convertlead" doc:id="5bb5c7f8-605f-4bc9-aaa8-70f644364a34" config-ref="HTTP_Listener_config" path="/convertlead"/>
+		<ee:transform doc:name="Transform Message" doc:id="b4f2a0f7-a176-4646-9c12-cbf1f2f76f7b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	contactId: "333-1254",
+	accountId: "0015j00000WdvP8AAJ",
+} as Object {
+	class : "org.mule.extension.salesforce.api.core.LeadConvertRequest"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:convert-lead doc:name="Convert lead" doc:id="a7d0632e-8285-4258-96ac-d72f9eaaa60b" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="45e561d2-a530-4e71-ba84-b5eb2e5be2b6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow12" doc:id="806fa861-966d-47da-88b6-8254dd87c31e" >
+		<http:listener doc:name="/describeglobal" doc:id="8efc27ec-0829-4f22-95a8-14d346a3f3a0" config-ref="HTTP_Listener_config" path="/describeglobal"/>
+		<salesforce:describe-global doc:name="Describe global" doc:id="8bed6bfa-065d-46ec-bf71-e49479c7842a" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="51f96ee6-3a60-4ab3-8b02-b8cc465db812" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow13" doc:id="e477b7ae-0d96-4038-9bd4-c0ab90280ad0" >
+		<http:listener doc:name="/describemetadata" doc:id="f2fc0de3-4378-41be-a867-f764a50a7262" config-ref="HTTP_Listener_config" path="/describemetadata"/>
+		<salesforce:describe-metadata doc:name="Describe metadata" doc:id="32074667-af14-4cb5-b5dd-bedb6b8ceb61" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="b76ae34e-9b45-47f0-ad5d-21dbfdde52b0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow14" doc:id="63c6f0bb-9c10-45ee-be71-d585d550df03" >
+		<http:listener doc:name="/describesobject" doc:id="4ad46000-a4c3-4b57-ad50-e7ec00e4125a" config-ref="HTTP_Listener_config" path="/describesobject"/>
+		<salesforce:describe-sobject type="Account" doc:name="Describe sobject" doc:id="190b80fd-2ea3-4f0a-878e-642ce37ffde8" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="088aa982-ffb5-460d-980d-2e3fe48b1fe4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow15" doc:id="9c3d0aad-6bed-4466-b06b-ba8778b2e1d2" >
+		<http:listener doc:name="/findduplicates" doc:id="1d24db8d-5055-4659-a6cc-7644f57bccf3" config-ref="HTTP_Listener_config" path="/findduplicates"/>
+		<ee:transform doc:name="Transform Message" doc:id="86e0eace-2d44-4161-bb5f-d890b8371f9d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	Id: "0015j00000WdvP8AAJ",
+	IsDeleted: false,
+	Name: "Ajinkya Mane",
+	Type: "Customer-Channel",
+	ShippingState: "US",
+	Phone: "333-1254"
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:find-duplicates type="Account" doc:name="Find duplicates" doc:id="1b6511b4-d9a4-4719-866d-ec96c739ada1" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="208a31e2-3617-4921-94cc-dd56810d28d4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow16" doc:id="432764c8-4e78-4507-a86a-92124d3f0367" >
+		<http:listener doc:name="/findduplicatesbyid" doc:id="d8eabf04-7303-4097-a1f7-7f1dac18b871" config-ref="HTTP_Listener_config" path="/findduplicatesbyid"/>
+		<salesforce:find-duplicates-by-ids doc:name="Find duplicates by ids" doc:id="07895593-63bf-4297-b5ad-3d2eb4122949" config-ref="Salesforce_Config">
+			<salesforce:ids ><![CDATA[#[["0015j00000WdvP8AAJ","0015j00000WdvP7AAJ"]]]]></salesforce:ids>
+		</salesforce:find-duplicates-by-ids>
+		<ee:transform doc:name="Transform Message" doc:id="b7242d3a-9d49-4b3a-8968-15b44ad8d621" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow17" doc:id="1cc477e1-d5c8-4efb-97b6-3b38d0b28fb8" >
+		<http:listener doc:name="/getalljobsbulk" doc:id="48a155ea-e3aa-421a-a674-3dde75bf9379" config-ref="HTTP_Listener_config" path="/getalljobsbulk"/>
+		<salesforce:get-all-jobs-bulk-api-v2 doc:name="Get all jobs bulk api v 2" doc:id="eb7d0894-83d0-45a9-8878-8850e5a146d1" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="9365a5c6-8731-4b78-895f-4d42032d52bc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow18" doc:id="83b212df-c7e5-4add-a4fe-35b111e50c8a" >
+		<http:listener doc:name="/getallqueryjobs" doc:id="2838d300-c47d-4ab4-aecd-a19b2d7f23f6" config-ref="HTTP_Listener_config" path="/getallqueryjobs"/>
+		<salesforce:get-all-query-jobs-bulk-api-v2 doc:name="Get all query jobs bulk api v 2" doc:id="67062ddc-031c-4fe9-b95e-13532ddead89" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="36a4e101-8324-4548-ae76-40f0b89edb80" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow19" doc:id="d5eea829-4449-4cd0-965f-77e207df0889" >
+		<http:listener doc:name="/getdeleted" doc:id="e83fdc39-6410-4de8-a59f-4bee3ac76055" config-ref="HTTP_Listener_config" path="/getdeleted"/>
+		<salesforce:get-deleted objectType="Account" doc:name="Get deleted" doc:id="4b561de4-9979-404e-8b9a-ac643b8b4e02" config-ref="Salesforce_Config" startDate="2022-06-01" endDate="2022-06-15"/>
+		<ee:transform doc:name="Transform Message" doc:id="2423b6ed-1f22-47c4-9fb8-ed332732c276" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow20" doc:id="f71a641e-7365-47c2-a134-e45d7bb28aaa" >
+		<http:listener doc:name="/getjobstatebulk" doc:id="02b96253-7b42-4476-8be7-01de63cb3b28" config-ref="HTTP_Listener_config" path="/getjobstatebulk"/>
+		<salesforce:get-job-state-bulk-api-v2 doc:name="Get job state bulk api v 2" doc:id="9dd4af6e-8ec4-43f4-bbbb-4313c6c9d168" config-ref="Salesforce_Config" id="7505j000005rhAtAAI"/>
+		<ee:transform doc:name="Transform Message" doc:id="157dfdc0-7b7f-40f4-bcfa-25ff07cf6fbd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow21" doc:id="cd1d98f3-e7ef-474c-ad64-e97c3951b74f" >
+		<http:listener doc:name="/getqueryjobinfo" doc:id="96ca6ef9-d690-4f25-b544-94d1ac879f39" config-ref="HTTP_Listener_config" path="/getqueryjobinfo"/>
+		<salesforce:get-query-job-info-bulk-api-v2 doc:name="Get query job info bulk api v 2" doc:id="3d428bba-79ce-4d33-b2d8-371d438727c4" config-ref="Salesforce_Config" id="7505j000005rhAtAAI"/>
+		<ee:transform doc:name="Transform Message" doc:id="28e2b799-1cad-46ec-aef1-d8326a527ed3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow22" doc:id="c92e5eb7-6af0-4d7d-8aad-f2cf0f2cfeea" >
+		<http:listener doc:name="/getservertimestamp" doc:id="a6aa63bc-cc3a-49f7-bf97-516776062a4b" config-ref="HTTP_Listener_config" path="/getservertimestamp"/>
+		<salesforce:get-server-timestamp doc:name="Get server timestamp" doc:id="50282aa1-2255-4189-bd60-900c87ccee91" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="56038b99-5568-49de-94d8-40f77c104c6d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow23" doc:id="ed7e53ba-9910-4f19-a92c-f4fadf5a83b0" >
+		<http:listener doc:name="/getupdatedobjects" doc:id="e94d58ca-430e-49e1-b539-3264bcbf3f31" config-ref="HTTP_Listener_config" path="/getupdatedobjects"/>
+		<salesforce:get-updated objectType="Account" doc:name="Get updated objects" doc:id="1c9129ed-c64a-4eb0-9f13-f59d4c03b59c" config-ref="Salesforce_Config" startDate="2022-06-01" endDate="2022-06-15"/>
+		<ee:transform doc:name="Transform Message" doc:id="4204f9fa-dc98-4e9b-b5d7-20f797c7f653">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow24" doc:id="f04d80a2-4d53-4c27-a640-71e60f79a477" >
+		<http:listener doc:name="/getuserinfo" doc:id="ca01695f-1843-42ba-8e6e-9029ca772897" config-ref="HTTP_Listener_config" path="/getuserinfo"/>
+		<salesforce:get-user-info doc:name="Get user info" doc:id="5c9435c3-72e8-4d89-8c63-328b5f2fef6a" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="d12cc99f-9fbf-43a1-b74e-2c009f55045b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow25" doc:id="84b5d89f-b388-4a84-9fd4-6cc7c6fa5e66" >
+		<http:listener doc:name="/invokeapexrest" doc:id="5c1e0dfd-9872-42db-a4c4-47afdede791d" config-ref="HTTP_Listener_config" path="/invokeapexrest"/>
+		<ee:transform doc:name="Transform Message" doc:id="7f8bf347-5528-4d69-9506-45ab3bf1ee56" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:invoke-apex-rest-method doc:name="Invoke apex rest method" doc:id="007741bd-9f07-4307-a154-a99de0cba2f6" config-ref="Salesforce_Config" className="checkAccount" methodName="getAccount^/showAccountsDetails^HttpGet^List&lt;Account&gt;^"/>
+		<ee:transform doc:name="Transform Message" doc:id="2ec2eca0-2979-4950-a8cf-e1f7f3de6434" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e8ab4ca1-f8ea-4bcd-a4fb-8cb4accd5569" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow26" doc:id="899b798a-0fdf-42f0-8556-f7ea03143cf0" >
+		<http:listener doc:name="/jobinfo" doc:id="5d8632e2-27c4-4576-89e6-6148124796f8" config-ref="HTTP_Listener_config" path="/jobinfo"/>
+		<salesforce:job-info doc:name="Job info" doc:id="923f8bff-fbfc-4b4e-83fa-4269a955f989" config-ref="Salesforce_Config" jobId="7505j000005rl8SAAQ"/>
+		<ee:transform doc:name="Transform Message" doc:id="1b296dd4-892d-4aff-949f-6733e112134a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow27" doc:id="c778d3c7-8c45-4158-83c4-71bac54d6ba6" >
+		<http:listener doc:name="/listmetadata" doc:id="402e65bc-f7d1-4cd8-bd5b-c7a1847bbf96" config-ref="HTTP_Listener_config" path="/listmetadata"/>
+		<salesforce:list-metadata type="ApexClass" doc:name="List metadata" doc:id="1adda992-68bc-428b-a666-4661b058ebc6" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="2159f10f-139c-4ab3-9f79-26461cf6061b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow28" doc:id="7e540a2c-2ff5-44c9-b06b-6e7ae466cb8c" >
+		<salesforce:deleted-object-listener objectType="Account" doc:name="On Deleted Object" doc:id="a60b7442-a326-45dd-8459-cfe97975f73c" config-ref="Salesforce_Config">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:deleted-object-listener>
+		<ee:transform doc:name="Transform Message" doc:id="fbc6f10c-21ab-40f7-bb86-b82a9a93324a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="c330b5a1-4c56-4db3-98b8-59d562ad828e" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow29" doc:id="a5c58d1a-97f8-479f-b37c-6938a754d3fb" >
+		<salesforce:modified-object-listener objectType="Account" doc:name="On Modified Object" doc:id="f1fe4fdb-95ed-4c3d-8659-63872061681b" config-ref="Salesforce_Config">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:modified-object-listener>
+		<ee:transform doc:name="Transform Message" doc:id="3558a68f-bd87-4a02-b87c-7c747ff0be84" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="595ae897-068a-4b54-8c01-c5432abf3ebe" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow30" doc:id="9d6ed7f3-e450-4e4c-86a2-0839312d212f" >
+		<salesforce:new-object-listener objectType="Account" doc:name="On New Object" doc:id="1acba938-e790-48d5-8f78-1d5b42512b11" config-ref="Salesforce_Config">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:new-object-listener>
+		<ee:transform doc:name="Transform Message" doc:id="ac35c3fe-46b0-45ec-8b99-f48cf8d8226f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b39fa334-0981-475e-bded-d56a0cb2af2e" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow31" doc:id="8944b26e-340f-4989-abd8-fd3c89f84480" >
+		<http:listener doc:name="/publishplatformevent" doc:id="ad250df8-db99-4be3-b3c5-67a28f133a52" config-ref="HTTP_Listener_config" path="/publishplatformevent"/>
+		<ee:transform doc:name="Transform Message" doc:id="9b92972f-8409-4fcc-b5ef-6b0772155347" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+ output application/java
+---
+ [{
+     Name__c: payload.name,
+     Id__c: payload.id
+ }]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:publish-platform-event-message doc:name="Publish platform event message" doc:id="4e126499-4ac6-4bfe-a1bc-c71d42e9035b" config-ref="Salesforce_Config" platformEventName="Users__e"/>
+		<ee:transform doc:name="Transform Message" doc:id="dcc1be74-adc2-420e-bcbb-6216917c80ca" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow32" doc:id="3330f155-0ecb-49fa-b417-1fb8a7686447" >
+		<http:listener doc:name="/publishstreamingchannel" doc:id="6479e8ac-185c-4d1d-acdb-d01f1c7fcb44" config-ref="HTTP_Listener_config" path="/publishstreamingchannel"/>
+		<salesforce:publish-streaming-channel doc:name="Publish streaming channel" doc:id="8362934f-4be0-4a44-aee5-b2540b2c6004" config-ref="Salesforce_Config" channelName="/u/TestChannel" description="TestChannel"/>
+		<ee:transform doc:name="Transform Message" doc:id="a4599024-9102-473b-8597-494c38445f78" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow33" doc:id="87600e55-e308-4d58-8826-d2aba6e4f32e" >
+		<http:listener doc:name="/publishtopic" doc:id="58d2aa35-66fd-4777-b222-3d37b08789eb" config-ref="HTTP_Listener_config" path="/publishtopic"/>
+		<salesforce:publish-topic doc:name="Publish topic" doc:id="6c571ffc-ad73-4c0a-b82e-830ddafd8b41" config-ref="Salesforce_Config" topicName="Account" query="SELECT Id, Name FROM Account " description="Get records from account"/>
+		<ee:transform doc:name="Transform Message" doc:id="570f6f76-298a-4b23-a866-005d42fd1376" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow34" doc:id="8750d106-b66f-4e1a-81c3-5fd6bc32e81e" >
+		<http:listener doc:name="/pushgenericevent" doc:id="1bd61428-0ad8-45fc-9b5d-9938d95c20b6" config-ref="HTTP_Listener_config" path="/pushgenericevent"/>
+		<ee:transform doc:name="Transform Message" doc:id="b93e183a-9754-41d9-88d1-86fd4afbf5d7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+--- 
+[{
+"payload": "Hello Salesforce ",
+"userIds": []
+}]
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:push-generic-event doc:name="Push generic event" doc:id="182f0f4f-0334-4ca0-848a-70a9c23240a5" config-ref="Salesforce_Config" channelId="0M65j000000Kz5bCAC">
+		</salesforce:push-generic-event>
+		<ee:transform doc:name="Transform Message" doc:id="02eebba7-c6e0-4148-ad17-4b5a902d7a3e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow35" doc:id="80e032b6-b1cf-4525-b23e-48dc2603b820" >
+		<http:listener doc:name="/queryall" doc:id="b9c1b96c-1656-47f0-bec2-9113d2a98b9c" config-ref="HTTP_Listener_config" path="/queryall"/>
+		<salesforce:query-all doc:name="Query all" doc:id="47f32af0-3ade-463f-ac00-4e77246cec98" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[Select Name,BillingState,Phone,Type,OwnerID from Account ]]></salesforce:salesforce-query>
+		</salesforce:query-all>
+		<ee:transform doc:name="Transform Message" doc:id="c0912169-4803-4372-b95b-8765dec39bed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow36" doc:id="a463a9e4-0d3d-4130-90ec-f2ad33735e87" >
+		<http:listener doc:name="/queryxmlstream" doc:id="70e445ab-5b57-4842-8c7a-45d9af0521c3" config-ref="HTTP_Listener_config" path="/queryxmlstream"/>
+		<salesforce:query-xml-stream doc:name="Query xml stream" doc:id="21615e25-893c-4e54-8092-7b4234c044ef" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[Select Name,BillingState,Phone,Type,OwnerID from Account ]]></salesforce:salesforce-query>
+		</salesforce:query-xml-stream>
+		<ee:transform doc:name="Transform Message" doc:id="2c617ad0-8c1e-4895-afd3-d3533e4eeab1">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow37" doc:id="3debca57-e8b0-48e6-aa34-6342ddbf5fee" >
+		<salesforce:subscribe-channel-listener doc:name="Subscribe channel listener" doc:id="9c0b0750-b773-4752-8179-6e4adfc27895" config-ref="Salesforce_Config" streamingChannel="/u/TestChannel"/>
+		<logger level="INFO" doc:name="Logger" doc:id="456a5cda-d0f0-45b6-ac40-c6c85453f5c6" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow38" doc:id="6293632a-98f5-43af-83f2-722fea52ae9a" >
+		<salesforce:replay-channel-listener doc:name="Replay channel listener" doc:id="ba7d615a-0576-441a-b572-55d0f826c128" config-ref="Salesforce_Config" streamingChannel="/u/TestChannel" replayOption="ONLY_NEW"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7de0244f-dcc9-44cb-b3fa-86a34acb6cfa" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow39" doc:id="5d89da59-5571-40e3-bf4b-d213848ffd6e" >
+		<http:listener doc:name="/resetpassword" doc:id="76202a74-41da-4836-9ca4-a5daa5450fb4" config-ref="HTTP_Listener_config" path="/resetpassword"/>
+		<salesforce:reset-password doc:name="Reset password" doc:id="559ef692-f54c-4de5-9686-a878155e974b" config-ref="Salesforce_Config" userId="0055j000000ekpVAAQ"/>
+		<ee:transform doc:name="Transform Message" doc:id="55455cd2-1635-4e14-af0d-947a32097e3f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow40" doc:id="6dc3c8c2-80c3-4ee5-a836-e75b6a59632b" >
+		<http:listener doc:name="/retrievejobfailed" doc:id="09848b95-cb74-4b41-ab31-5093affa9d66" config-ref="HTTP_Listener_config" path="/retrievejobfailed"/>
+		<salesforce:retrieve-job-failed-results-bulk-v2 doc:name="Retrieve job failed results bulk v 2" doc:id="97869383-85e9-4218-b46a-62d19794ef4f" config-ref="Salesforce_Config" id="7505j000005s0xLAAQ"/>
+		<ee:transform doc:name="Transform Message" doc:id="cc66f7ff-0ab9-4df4-bbf1-f4b75a1acd1e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow41" doc:id="649d756d-4686-43b5-9ae4-a94844666539" >
+		<http:listener doc:name="/retrievejobsuccessful" doc:id="28958b26-4fce-4929-817b-61ee475495c4" config-ref="HTTP_Listener_config" path="/retrievejobsuccessful"/>
+		<salesforce:retrieve-job-successful-results-bulk-v2 doc:name="Retrieve job successful results bulk v 2" doc:id="40021958-3229-4edc-a14f-161ab2a31e16" config-ref="Salesforce_Config" id="7505j000005s0xLAAQ"/>
+		<ee:transform doc:name="Transform Message" doc:id="4ab04d04-8be5-400b-9195-47152d742cac" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow42" doc:id="0f258206-9704-4185-be7c-e248bd1d4fc7" >
+		<http:listener doc:name="/retrievejobunprocessed" doc:id="e297e6e0-6518-4cb1-9746-1a9163bd162c" config-ref="HTTP_Listener_config" path="/retrievejobunprocessed"/>
+		<salesforce:retrieve-job-unprocessed-results-bulk-v2 doc:name="Retrieve job unprocessed results bulk v 2" doc:id="01e310d9-6bc9-4ee5-906d-46f745aeaa36" config-ref="Salesforce_Config" id="7505j000005s0xLAAQ"/>
+		<ee:transform doc:name="Transform Message" doc:id="bb81d71c-94f0-4913-a573-620d41e0dbf2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow43" doc:id="17c6eadf-ae21-4253-a419-4598f97f18cd" >
+		<http:listener doc:name="/search" doc:id="37143487-bbf0-4c8f-bc85-17161fe0c034" config-ref="HTTP_Listener_config" path="/search"/>
+		<salesforce:search doc:name="Search" doc:id="a3e73f1b-d51c-45f2-808e-d0913b166b3f" config-ref="Salesforce_Config">
+			<salesforce:search-string ><![CDATA[FIND {:searchQuery}
+IN Name FIELDS
+RETURNING Account (Id, Name)]]></salesforce:search-string>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	searchQuery : attributes.queryParams.query
+}]]]></salesforce:parameters>
+		</salesforce:search>
+		<ee:transform doc:name="Transform Message" doc:id="6a7a0811-45aa-4706-a5f6-845c9d1e9a45" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow44" doc:id="964cb0cc-861f-4844-ab0c-4040de5bf596" >
+		<http:listener doc:name="/setpassword" doc:id="a8c270fe-0a3a-48e1-b88b-9b3f9028b227" config-ref="HTTP_Listener_config" path="/setpassword"/>
+		<salesforce:set-password doc:name="Set password" doc:id="907b76bf-e61c-441f-a48c-da1abf63b5b9" config-ref="Salesforce_Config" userId="0055j000000ekpVAAQ" newPassword="Wednesday@123456"/>
+		<ee:transform doc:name="Transform Message" doc:id="ac1eb971-454d-4bca-be0c-2aa1b2286ca3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow45" doc:id="081a5347-248f-4e26-868c-36373ddc66ec" >
+		<http:listener doc:name="/update" doc:id="b10a92f0-2824-43f6-815c-0bdf0a31b4a3" config-ref="HTTP_Listener_config" path="/update"/>
+		<ee:transform doc:name="Transform Message" doc:id="c5914ce4-5c0c-421a-a497-ccdb4badf2fc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Id: $.id,
+	Name: $.name,
+	BillingCity: $.billingCity,
+	Phone: $.number,
+	BillingCountry: $.billingCountry,
+	BillingState: $.billingState
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:update type="Account" doc:name="Update" doc:id="630815be-cc9d-435b-ba92-fe09be33c112" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="83863861-0b15-4925-a99c-1875d90d7e7c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow46" doc:id="267777e0-e54d-48fd-9a9e-1fb4ddebe20d" >
+		<http:listener doc:name="/abortjobbulk" doc:id="32ad09f0-8786-47eb-b57f-82a3e2d78b14" config-ref="HTTP_Listener_config" path="/abortjobbulk"/>
+		<salesforce:abort-job-bulk-api-v2 doc:name="Abort job bulk api v 2" doc:id="788f158a-980c-49de-af83-b6c44062e4e7" config-ref="Salesforce_Config" id="7505j000005sBi2AAE"/>
+		<ee:transform doc:name="Transform Message" doc:id="360b4ca7-6896-4734-b085-88e09a71dd20">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow47" doc:id="0035fa8a-2552-46c3-8297-1ba991652922" >
+		<http:listener doc:name="/abortqueryjob" doc:id="41eb62b4-3c6b-48ff-ac93-ecc2807d93da" config-ref="HTTP_Listener_config" path="/abortqueryjob"/>
+		<salesforce:abort-query-job-bulk-api-v2 doc:name="Abort query job bulk api v 2" doc:id="cad66cbc-cbd1-4adc-b2e6-838033eb740e" config-ref="Salesforce_Config" id="7505j000005sBk3AAE"/>
+		<ee:transform doc:name="Transform Message" doc:id="b9d54171-ca82-47a5-aee9-69f47a959199" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow48" doc:id="3407b8ce-b899-4e34-8a56-9ca0903559ce" >
+		<http:listener doc:name="/createbatch" doc:id="7ecf7522-d9e9-46a5-bf5c-32e836443c11" config-ref="HTTP_Listener_config" path="/createbatch"/>
+		<ee:transform doc:name="Transform Message" doc:id="0f75074b-5aaa-4478-b957-89876d7ab5dd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+
+"name": "Nikhil",
+"billingCity": "Pune",
+"number": "555-6666",
+"billingCountry": "India",
+"billingState": "IND"
+},
+{
+
+"name": "Akshay",
+"billingCity": "Miami",
+"number": "111-2222",
+"billingCountry": "United-States",
+"billingState": "US"
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-batch doc:name="Create batch" doc:id="8a2b8b38-84de-43b4-a449-0813a3302d36" config-ref="Salesforce_Config">
+			<salesforce:job-info-batch contentType="JSON" externalIdFieldName='#[""]' id='#["7505j000005sNTsAAM"]' object='#["Account"]' />
+		</salesforce:create-batch>
+		<ee:transform doc:name="Transform Message" doc:id="652fa258-bd20-4285-9e35-2abb4b17868a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow49" doc:id="9e42c501-36bc-4af0-a370-763e6f37a1a2" >
+		<http:listener doc:name="/batchinfo" doc:id="85f74d8c-7118-4d51-aeb7-bbc1944426b8" config-ref="HTTP_Listener_config" path="/batchinfo"/>
+		<ee:transform doc:name="Transform Message" doc:id="6e96c588-7fbf-41d0-9642-d5a42754c2bc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000006Q66fAAC",
+	jobId: "7505j000005sNTsAAM"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:batch-info doc:name="Batch info" doc:id="a1e0d867-ee43-48f6-8bcf-9be42dd793fd" config-ref="Salesforce_Config" contentType="JSON"/>
+		<ee:transform doc:name="Transform Message" doc:id="657cff2c-3ba6-49a9-8c72-8f574fafe8e6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow50" doc:id="e4b6896d-733c-4bb5-92bd-c68af68d9f0e" >
+		<http:listener doc:name="/batchinfolist" doc:id="0c02b2b3-de31-4f1e-aab2-fa067004afc4" config-ref="HTTP_Listener_config" path="/batchinfolist"/>
+		<salesforce:batch-info-list doc:name="Batch info list" doc:id="5076cfc6-65b9-48df-8125-2eb82482d654" config-ref="Salesforce_Config" jobId='#["7505j000005sNTsAAM"]' contentType="JSON"/>
+		<ee:transform doc:name="Transform Message" doc:id="227b8d28-87d0-4ef4-9ecc-1e1dfe0b6d3b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow51" doc:id="49ec059e-682a-4181-a2af-e8ad56a13ff0" >
+		<http:listener doc:name="/batchresult" doc:id="a3e9a9b5-fbe1-4f78-a18a-5c024018d936" config-ref="HTTP_Listener_config" path="/batchresult"/>
+		<ee:transform doc:name="Transform Message" doc:id="5538f031-679c-4e0e-b069-5cd2b0445220" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000006Q66fAAC",
+	jobId: "7505j000005sNTsAAM",
+	numberRecordsFailed: 0,
+	numberRecordsProcessed: 0,
+	state: "Failed",
+	stateMessage: "Unable to read request: No content to map to Object due to end of input"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:batch-result doc:name="Batch result" doc:id="753df9b6-7974-4f26-95f3-b433d0d20ab7" config-ref="Salesforce_Config" contentType="JSON"/>
+		<ee:transform doc:name="Transform Message" doc:id="d6229913-f902-4b4a-a8ea-cd4e34dc1bdb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow52" doc:id="415f1152-e067-47ed-aaae-603c9a418482" >
+		<http:listener doc:name="/batchresultstream" doc:id="e636fd73-3e79-4018-a987-af1c95f60a5d" config-ref="HTTP_Listener_config" path="/batchresultstream"/>
+		<ee:transform doc:name="Transform Message" doc:id="c47f3c08-9b7b-4347-8c7f-b53f74cea4a0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000006Q66fAAC",
+	jobId: "7505j000005sNTsAAM",
+	numberRecordsFailed: 0,
+	numberRecordsProcessed: 0,
+	state: "Failed",
+	stateMessage: "Unable to read request: No content to map to Object due to end of input"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:batch-result-stream doc:name="Batch result stream" doc:id="13134c56-8b95-453f-a854-09920e22968c" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="27fc0ff1-f816-487b-a42b-f1041c8360d1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow53" doc:id="fe11d27d-640d-49ec-8a6e-13fff863d2c1" >
+		<http:listener doc:name="/closejob" doc:id="1ed173f7-524c-44de-aa42-9d62c09ef062" config-ref="HTTP_Listener_config" path="/closejob"/>
+		<salesforce:close-job doc:name="Close job" doc:id="d3e1759d-e920-4494-93ef-62b6dfda4869" config-ref="Salesforce_Config" jobId='#["7505j000005sRUaAAM"]'/>
+		<ee:transform doc:name="Transform Message" doc:id="e530eae8-1b77-4c7d-b2aa-ffc1e23a7336">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow54" doc:id="7055f01e-c1a3-46ea-8949-a4862dd854c3" >
+		<http:listener doc:name="/createbatchforquery" doc:id="3891ff07-9c07-4a14-887c-d866f226773f" config-ref="HTTP_Listener_config" path="/createbatchforquery"/>
+		<salesforce:create-batch-for-query doc:name="Create batch for query" doc:id="206d0edb-c114-4127-9fc5-15d6034aafe6" config-ref="Salesforce_Config">
+			<salesforce:job-info-batch-for-query externalIdFieldName='#[""]' id='#["7505j000007JA3QAAW"]' contentType="JSON" object='#["Account"]' operation="queryAll"/>
+			<salesforce:batch-query ><![CDATA[SELECT Name,BillingState,Phone,Type,OwnerID from Account ]]></salesforce:batch-query>
+		</salesforce:create-batch-for-query>
+		<ee:transform doc:name="Transform Message" doc:id="3ac52827-0484-4e76-a100-21d7f9806a1d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow55" doc:id="ccd8d430-65be-446b-9ff3-1cf152355119" >
+		<http:listener doc:name="/getqueryjobresults" doc:id="80a6d54d-43fe-4e1c-8af7-3f33e1ae71df" config-ref="HTTP_Listener_config" path="/getqueryjobresults"/>
+		<salesforce:get-query-job-results-bulk-api-v2 doc:name="Get query job results bulk api v 2" doc:id="0cbfd2e8-2a1e-4346-9414-6cfa7eb9eca8" config-ref="Salesforce_Config" id='#["7505j000005sRf9AAE"]'/>
+		<ee:transform doc:name="Transform Message" doc:id="c8bdd809-dfa2-490b-8899-edd5c7e4cc59">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow56" doc:id="c1dee598-9db1-4539-abdd-ca72647ce2c1" >
+		<http:listener doc:name="/merge" doc:id="11c3ee2e-f843-4dce-bddf-a111d9c6a966" config-ref="HTTP_Listener_config" path="/merge"/>
+		<salesforce:query doc:name="Query" doc:id="a195dc75-7b95-4e7f-b656-352216ccacf2" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id from Account WHERE Name = 'Ajinkya Mane']]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="645f5a3e-a413-4582-986e-c591d9995ba4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload.Id]" doc:name="Set Variable" doc:id="81d32235-6eae-4591-b9f5-8019da00d2d4" variableName="accountId1"/>
+		<salesforce:query doc:name="Query" doc:id="72b2247e-c281-43e8-9f15-6cf000675901" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id from Account WHERE Name = 'sForce' or Name='GenePoint']]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="3d753dcb-42b8-4c28-a74f-522c76ba625b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload.Id]" doc:name="Set Variable" doc:id="16854b2e-4133-48f0-a77f-180162ef6f42" variableName="accountId2"/>
+		<ee:transform doc:name="Transform Message" doc:id="80469cde-e3fa-4197-b044-ecf9a29b0fae" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+vars.accountId2]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:merge type="Account" doc:name="Merge" doc:id="5a148902-3af0-4e7c-b404-a3c2c5c33463" config-ref="Salesforce_Config">
+			<salesforce:ids ><![CDATA[#[vars.accountId2]]]></salesforce:ids>
+			<salesforce:master-record ><![CDATA[#[{Id: vars.accountId1[0]}]]]></salesforce:master-record>
+		</salesforce:merge>
+		<ee:transform doc:name="Transform Message" doc:id="54083a44-869f-450b-861c-191933c952a2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow57" doc:id="cac7a122-09ab-4308-8b35-4cf64170e3df" >
+		<http:listener doc:name="/mergemultiple" doc:id="c2b3f341-22a1-4f55-a364-c2cb66ac5246" config-ref="HTTP_Listener_config" path="/mergemultiple"/>
+		<ee:transform doc:name="Transform Message" doc:id="1cebeec4-b267-46bf-8fee-de086043a585" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	masterRecord: {"Id": "0015j00000g8jaAAAQ",
+    "type": "Account"
+	},
+	recordToMergeIds: ["0015j000008H5ZwAAK"]
+} as Object {
+	class : "org.mule.extension.salesforce.api.param.MergeRecord"
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:merge-multiple doc:name="Merge multiple" doc:id="69b98a29-ee55-4ca1-aff2-940ed3592ccc" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="940156dc-7342-460e-8fca-30bfc05d3985" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow58" doc:id="e18c4155-a448-4a0c-814b-b88311d5af74" >
+		<http:listener doc:name="/queryresultlist" doc:id="10c31a00-b960-486a-960b-81fff0168328" config-ref="HTTP_Listener_config" path="/queryresultlist"/>
+		<ee:transform doc:name="Transform Message" doc:id="34e787a2-a766-46c9-b59c-ae6542354eb2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000006QQg9AAG",
+	jobId: "7505j000005sZcrAAE"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:query-result-list doc:name="Query result list" doc:id="255cb8bb-6998-4942-8a8d-c00cc30a399e" config-ref="Salesforce_Config" contentType="JSON"/>
+		<ee:transform doc:name="Transform Message" doc:id="17524e5b-84d2-42d7-89e7-bd417e05b26b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow59" doc:id="4c16defb-37a8-4192-a531-91ac86ef9bb9" >
+		<http:listener doc:name="/queryresultstream" doc:id="422ad047-f114-48fe-bfe0-003b86f9af43" config-ref="HTTP_Listener_config" path="/queryresultstream"/>
+		<ee:transform doc:name="Transform Message" doc:id="efad4356-805f-401f-9821-9fe86247c0c0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	apexProcessingTime: 0,
+	apiActiveProcessingTime: 0,
+	id: "7515j000006QQg9AAG",
+	jobId: "7505j000005sZcrAAE",
+	numberRecordsFailed: 0,
+	numberRecordsProcessed: 0,
+	state: "Queued",
+	stateMessage: "null",
+	totalProcessingTime: 0
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:query-result-stream doc:name="Query result stream" doc:id="dc32b76f-1dae-4b99-8912-4d59369e94ae" config-ref="Salesforce_Config" contentType="JSON"/>
+		<ee:transform doc:name="Transform Message" doc:id="0112a2f4-7014-44cd-8e62-068f014416d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow60" doc:id="9b18b517-0333-4362-bf00-0f9ba8baa916" >
+		<http:listener doc:name="/createbatchstream" doc:id="216a1d9a-accf-49c0-843b-c9775552bfcb" config-ref="HTTP_Listener_config" path="/createbatchstream"/>
+		<salesforce:create-batch-stream doc:name="Create batch stream" doc:id="7de2174d-52a5-45e7-a66b-98f16956de82" config-ref="Salesforce_Config">
+			<salesforce:job-info-batch-stream contentType="JSON" externalIdFieldName='#[""]' id='#["7505j000005sZcrAAE"]' object='#["Account"]' />
+			<salesforce:stream ><![CDATA[#["chatter"]]]></salesforce:stream>
+		</salesforce:create-batch-stream>
+		<ee:transform doc:name="Transform Message" doc:id="ad415584-9023-42a4-9f56-11a835614595">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow61" doc:id="d53d5bdb-de3d-418e-81d2-bae8c0d22711" >
+		<salesforce:subscribe-topic-listener doc:name="Subscribe topic listener" doc:id="355a3893-e4ef-493d-a0db-e3e33de1dcfa" config-ref="Salesforce_Config" topic="Account"/>
+		<ee:transform doc:name="Transform Message" doc:id="4c7aeb62-24b2-47ec-9eb9-962a46619600" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f5918add-c0de-4d6f-9dd2-02569e755437" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow62" doc:id="2a01beae-7010-4058-b517-89c2e5c8789f" >
+		<salesforce:replay-topic-listener topic="Account" replayOption="ONLY_NEW" doc:name="Replay topic listener" doc:id="352af624-5d8b-4e12-a350-a5f31f93b05a" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="fe79a7b0-e81c-4529-a2f2-16754f11a0d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="86eaccd8-295c-4dcf-b06d-077449f58bf1" message="#[payload]"/>
+	</flow>
+	<flow name="salesforce-pocFlow63" doc:id="3ffacf47-2ae4-4643-b5a6-7adc8500cb63" >
+		<http:listener doc:name="/retrieve" doc:id="22b86d89-f2dc-454c-8fd5-643a31edc42d" config-ref="HTTP_Listener_config" path="/retrieve"/>
+		<ee:transform doc:name="Transform Message" doc:id="382a0947-91e1-4fa4-a7f9-51bd72d344dd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	fields: ["Id"],
+	ids: ["0015j00000WdvP8AAJ" , "0015j00000g8jaAAAQ"]
+} as Object {
+	class : "org.mule.extension.salesforce.api.core.RetrieveRequest"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:retrieve type="Account" doc:name="Retrieve" doc:id="937c1a46-14a2-4ea5-b678-6489581cd47d" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="961a91fa-49b4-4280-8c26-8ee60b2c8db7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow64" doc:id="3ee3d82c-6be1-45d4-a79b-62f767ac66c6" >
+		<http:listener doc:name="/createmetadata" doc:id="fa4f6d7a-a254-4cdf-851e-5228d173c430" config-ref="HTTP_Listener_config" path="/createmetadata"/>
+		<ee:transform doc:name="Transform Message" doc:id="26aecb24-420d-4d5c-8b5b-c70927ddc1f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	description: "To create custom metadata",
+	fullName: "Prathamesh Kadam",
+	protected: false,
+	values: [{
+		field: "Id",
+		value: {id: "10"}
+	}]
+} as Object {
+	class : "com.sforce.soap.metadata.CustomMetadata"
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-metadata doc:name="Create metadata" doc:id="79ee6790-5c8c-4aa3-8fa4-87e70cb6ff4c" config-ref="Salesforce_Config" type="CustomMetadata"/>
+		<ee:transform doc:name="Transform Message" doc:id="5bcba15d-3c9e-40c2-a423-9ca18e2c2101" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow65" doc:id="9f4557d8-26f8-4b4e-beb2-87c5fbc11bd1" >
+		<http:listener doc:name="/invokesoap" doc:id="def9b169-e51d-4d56-aaf3-f97a8e583a28" config-ref="HTTP_Listener_config" path="/invokesoap"/>
+		<ee:transform doc:name="Transform Message" doc:id="7bf98e32-da9c-42e4-8cba-5af69c26d2f7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.sforce.com/schemas/class/MyWebService
+---
+{
+	ns0#makeContact: {
+		ns0#message: "TestMessge",
+
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:invoke-apex-soap-method className="MyWebService" methodName="makeContact" doc:name="Invoke apex soap method" doc:id="dcf4f9cb-e471-4b6c-8f53-5ed6b2fc1a1d" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="cbbea2c3-4697-40bc-ad43-0d4c310f5643" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow66" doc:id="f0a048fd-7f6f-4396-bcb6-bec8740d8a30" >
+		<http:listener doc:name="/readmetadata" doc:id="1679baf3-742a-4a24-ac05-23275b57bcb6" config-ref="HTTP_Listener_config" path="/readmetadata"/>
+		<ee:transform doc:name="Transform Message" doc:id="a41ee863-5bf8-4622-ac3c-58106e90a8ce" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+["Prathamesh Kadam"]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:read-metadata type="AccountSettings" doc:name="Read metadata" doc:id="83bb9e93-abc9-44d4-8cf4-07b5cc4de900" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="61ae7eb3-8e1d-4b3e-b37c-258312e0bbef" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow67" doc:id="203468f9-643b-498c-9a2a-b43bc23e5ade" >
+		<http:listener doc:name="/renamemetadata" doc:id="54fc780b-fcd3-4fd9-8fb0-dacb487f2942" config-ref="HTTP_Listener_config" path="/renamemetadata"/>
+		<salesforce:rename-metadata type="AccountSettings" doc:name="Rename metadata" doc:id="c945b514-58fb-4cbd-86d8-a762a4955456" config-ref="Salesforce_Config" oldFullName='#["Prathamesh Kadam"]' newFullName='#["Sumanth Dasari"]' />
+		<ee:transform doc:name="Transform Message" doc:id="703b6a41-bcb0-4780-99ed-a83bab7749d0">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow68" doc:id="11a89cb5-158c-4bfc-aaf0-d54b55f7b8f8" >
+		<http:listener doc:name="/updatemetadata" doc:id="d35e8e58-fdaf-44fc-b80c-be7fbdf0fe40" config-ref="HTTP_Listener_config" path="/updatemetadata"/>
+		<ee:transform doc:name="Transform Message" doc:id="78012d2d-7dfc-47b8-acc5-0849875f9163" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	fullName: "Prathamesh Kadam"
+} as Object {
+	class : "com.sforce.soap.metadata.AccountSettings"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:update-metadata type="AccountSettings" doc:name="Update metadata" doc:id="80aaf06f-2ee5-4359-94a6-3e0129e7f415" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="8cec4346-1f3e-4a1f-8f7a-973cf4716567" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-pocFlow69" doc:id="ae250465-762d-4902-b698-fbac481a5d1a" >
+		<http:listener doc:name="/upsertmetadata" doc:id="7a001a4a-a05e-434e-81ec-f9de8d0587f8" config-ref="HTTP_Listener_config" path="/upsertmetadata"/>
+		<ee:transform doc:name="Transform Message" doc:id="ece2719e-2a13-4a5c-ae68-9b2f47e01e46" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	enableAccountHistoryTracking: false,
+	enableAccountInsightsInMobile: false,
+	enableAccountOwnerReport: false,
+	enableAccountTeams: false,
+	enableContactHistoryTracking: true,
+	enableRelateContactToMultipleAccounts: true,
+	fullName: "Sumanth Dasari",
+	showViewHierarchyLink: true
+} as Object {
+	class : "com.sforce.soap.metadata.AccountSettings"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert-metadata type="AccountSettings" doc:name="Upsert metadata" doc:id="1b23964d-3521-4b2e-baf3-bef5f678a648" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="cd79dc97-e85f-4ec4-ad35-8b3e4805ac5a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
