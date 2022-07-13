@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-upsertFlow" doc:id="9db984da-c27e-43f7-a151-af576bec0a10" >
+		<http:listener doc:name="/upsert" doc:id="f74f528b-43af-45e7-b233-07f87415e519" path="/upsert" config-ref="HTTP_Listener_config"/>
+		<ee:transform doc:name="Transform Message" doc:id="05959005-fba3-45ed-b520-edce1ce364ad" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Id: $.id,
+	Name: $.name,
+	BillingCity: $.billingCity,
+	Phone: $.number,
+	BillingCountry: $.billingCountry,
+	BillingState: $.billingState
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert objectType="Account" externalIdFieldName="Id" doc:name="Upsert" doc:id="2a29886f-a163-419d-8547-51ba1349cae5" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="1d3e1892-e71a-4173-85d6-9e0826524ab0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-upsertMetadataFlow" doc:id="ae250465-762d-4902-b698-fbac481a5d1a" >
+		<http:listener doc:name="/upsertmetadata" doc:id="7a001a4a-a05e-434e-81ec-f9de8d0587f8" path="/upsertmetadata" config-ref="HTTP_Listener_config"/>
+		<ee:transform doc:name="Transform Message" doc:id="ece2719e-2a13-4a5c-ae68-9b2f47e01e46" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	enableAccountHistoryTracking: false,
+	enableAccountInsightsInMobile: false,
+	enableAccountOwnerReport: false,
+	enableAccountTeams: false,
+	enableContactHistoryTracking: true,
+	enableRelateContactToMultipleAccounts: true,
+	fullName: "Sumanth Dasari",
+	showViewHierarchyLink: true
+} as Object {
+	class : "com.sforce.soap.metadata.AccountSettings"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert-metadata type="AccountSettings" doc:name="Upsert metadata" doc:id="1b23964d-3521-4b2e-baf3-bef5f678a648" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="cd79dc97-e85f-4ec4-ad35-8b3e4805ac5a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

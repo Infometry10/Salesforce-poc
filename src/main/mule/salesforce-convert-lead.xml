@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-convertLeadFlow" doc:id="c4a297a4-7839-4a8b-b100-3da852ceafb1" >
+		<http:listener doc:name="/convertlead" doc:id="38df2075-27df-49ef-9435-20cf97f377bf" config-ref="HTTP_Listener_config" path="/convertlead" />
+		<ee:transform doc:name="Transform Message" doc:id="d16608ce-b65b-4cca-a98a-865968a125bc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	contactId: "333-1254",
+	accountId: "0015j00000WdvP8AAJ",
+} as Object {
+	class : "org.mule.extension.salesforce.api.core.LeadConvertRequest"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:convert-lead doc:name="Convert lead" doc:id="cc364e22-21b2-41e7-b956-96389e4df449" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="edd72746-7b7f-4f0b-8925-1d8ffbc26732" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

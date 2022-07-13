@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-unauthorizeFlow" doc:id="fb24df89-317e-4ac6-9046-5003b97b716d" >
+		<http:listener doc:name="/unauthorize" doc:id="34e35917-22da-41e6-9169-a28a0d5f0cd5" config-ref="HTTP_Listener_config" path="/unauthorize" />
+		<salesforce:unauthorize doc:name="Unauthorize" doc:id="962b800b-9c94-47bc-9d1f-c2f4722d7aee" config-ref="Salesforce_Config" resourceOwnerId='#["06P5j000000ui00"]' />
+		<ee:transform doc:name="Transform Message" doc:id="69d100be-474b-4db8-989a-364ad2386860" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

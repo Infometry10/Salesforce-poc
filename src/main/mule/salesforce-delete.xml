@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-deleteFlow" doc:id="13bb8231-3a0a-474f-ba04-dd581e19e049" >
+		<http:listener doc:name="/delete" doc:id="1bbfb6d2-970a-4790-8a6d-6ab67f0ef30f" config-ref="HTTP_Listener_config" path="/delete" />
+		<salesforce:delete doc:name="Delete" doc:id="67035770-c8f9-4949-b9ad-2a241b2fd0f5" config-ref="Salesforce_Config" >
+			<salesforce:ids ><![CDATA[#[["0015j00000g6aJdAAI"]]]]></salesforce:ids>
+		</salesforce:delete>
+		<ee:transform doc:name="Transform Message" doc:id="6f584e89-e8ed-4bff-b1f0-675ea93b0454" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-deleteJobBulkApiFlow" doc:id="22d39160-6806-4c09-8708-df81a0370c3c" >
+		<http:listener doc:name="/deletebulkapi" doc:id="5f874ada-200d-4da9-ba85-222ec71e62c5" config-ref="HTTP_Listener_config" path="/deletebulkapi" />
+		<salesforce:delete-job-bulk-api-v2 doc:name="Delete job bulk api v 2" doc:id="5c46ae15-b324-4971-8412-ec0daa99d771" config-ref="Salesforce_Config" id="7505j000005rairAAA" />
+		<ee:transform doc:name="Transform Message" doc:id="4455dcdb-4805-4864-bcf7-082efec691a3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-deleteQueryJobBulkApiFlow" doc:id="923760d2-87c0-4110-aa85-00e79f819571" >
+		<http:listener doc:name="/deletequeryjob" doc:id="7eee665a-9b57-4557-89c5-88703d0af092" config-ref="HTTP_Listener_config" path="/deletequeryjob" />
+		<salesforce:delete-query-job-bulk-api-v2 doc:name="Delete query job bulk api v 2" doc:id="026e6bf6-f4c7-4ae4-b0ad-27bfc2b9c6ff" config-ref="Salesforce_Config" id="7505j000005raXUAAY" />
+		<ee:transform doc:name="Transform Message" doc:id="5c436795-9ab1-4fe6-821b-40cf1b0058be" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

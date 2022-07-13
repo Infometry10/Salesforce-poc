@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-abortJobFlow" doc:id="9da66a38-ecf9-48e4-b3a0-16b2e3faa4ac" >
+		<http:listener doc:name="/abortjob" doc:id="1c248d72-f2b3-4bf2-a5d3-d4f990c56633" config-ref="HTTP_Listener_config" path="/abortjob" />
+		<salesforce:abort-job doc:name="Abort job" doc:id="77f67fac-fb1b-4976-8937-0e34f1b2a063" config-ref="Salesforce_Config" jobId="7505j000005rdfHAAQ" />
+		<ee:transform doc:name="Transform Message" doc:id="caaa08a0-9841-4ccb-970c-b43a31ff2167" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-abortJobBulkApiFlow" doc:id="95c59daf-bb3f-4b91-9b29-a8046190c03a" >
+		<http:listener doc:name="/abortjobbulk" doc:id="99775f3c-b154-4272-969a-e83f661b37eb" config-ref="HTTP_Listener_config" path="/abortjobbulk" />
+		<salesforce:abort-job-bulk-api-v2 doc:name="Abort job bulk api v 2" doc:id="0f15c296-165a-45d6-a305-a51de78c7729" config-ref="Salesforce_Config" id="7505j000005sBi2AAE" />
+		<ee:transform doc:name="Transform Message" doc:id="eb235445-0cad-47f8-b177-04c0dfc4ccab" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-abortQueryJobBulkApiFlow" doc:id="326faf79-32e5-43af-802c-01411a6a487c" >
+		<http:listener doc:name="/abortqueryjob" doc:id="2c2850e4-6cba-4b2a-a8b4-6b32f321e109" config-ref="HTTP_Listener_config" path="/abortqueryjob" />
+		<salesforce:abort-query-job-bulk-api-v2 doc:name="Abort query job bulk api v 2" doc:id="1149a7e4-35ce-4a50-95a1-fbedf10ece40" config-ref="Salesforce_Config" id="7505j000005sBk3AAE" />
+		<ee:transform doc:name="Transform Message" doc:id="cae6dd0c-72c2-4950-811f-bc2ddc364248" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

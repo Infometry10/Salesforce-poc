@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-invokeApexRestMethodFlow" doc:id="ca7a17e3-e691-4952-adac-7ad34d700af1" >
+		<http:listener doc:name="/invokeapexrest" doc:id="eb719bda-9829-44bb-acfb-08161dc3ecd7" path="/invokeapexrest" config-ref="HTTP_Listener_config"/>
+		<ee:transform doc:name="Transform Message" doc:id="0497febc-347d-4f0d-a462-e329f3e0911f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:invoke-apex-rest-method className="checkAccount" methodName="getAccount^/showAccountsDetails^HttpGet^List&lt;Account&gt;^" doc:name="Invoke apex rest method" doc:id="a8042e97-f916-43ef-8bbe-c0ba8c5b6500" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="cc02c258-b035-4738-8734-abbfc09b7c81" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

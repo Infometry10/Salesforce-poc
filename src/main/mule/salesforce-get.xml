@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-getAllJobsBulkApiFlow" doc:id="23c0ba84-a6b9-4b34-8966-0a0b8f671950" >
+		<http:listener doc:name="/getalljobsbulk" doc:id="cf9eef65-e8c8-49f0-991f-ab2911f95e4d" config-ref="HTTP_Listener_config" path="/getalljobsbulk" />
+		<salesforce:get-all-jobs-bulk-api-v2 doc:name="Get all jobs bulk api v 2" doc:id="b3fd96eb-f50b-4a1c-b4da-df2141434c01" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="930267a6-4d77-4ab1-b37b-d8f689305142" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getAllQueryJobsBulkApiFlow" doc:id="863ec0bd-0eb1-4c90-8fda-f5265fae018f" >
+		<http:listener doc:name="/getallqueryjobs" doc:id="94048e3f-71bf-41ab-b72a-67b0eaf7ea56" config-ref="HTTP_Listener_config" path="/getallqueryjobs" />
+		<salesforce:get-all-query-jobs-bulk-api-v2 doc:name="Get all query jobs bulk api v 2" doc:id="22982084-b674-4240-9f58-e7c3018bc507" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="3114cc56-b9fe-42c0-9410-56aa2802dffb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getDeletedFlow" doc:id="0c774438-f2ad-458f-9cd0-33c8b4c3ceee" >
+		<http:listener doc:name="/getdeleted" doc:id="254e7861-8f96-4dc8-9531-bab00f8a97ad" config-ref="HTTP_Listener_config" path="/getdeleted" />
+		<salesforce:get-deleted objectType="Account" doc:name="Get deleted" doc:id="583fd0b8-9747-42ab-994c-ed26c4d49830" config-ref="Salesforce_Config" startDate="2022-06-01" endDate="2022-06-15" />
+		<ee:transform doc:name="Transform Message" doc:id="12cd0423-9729-4987-b211-e2eaf3dfffc0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getJobStateBulkApiFlow" doc:id="b9c8b4e5-4df2-4bd9-b842-5cf49fef68bc" >
+		<http:listener doc:name="/getjobstatebulk" doc:id="a1c5c415-ba56-48c5-96d7-ee1229141c61" config-ref="HTTP_Listener_config" path="/getjobstatebulk" />
+		<salesforce:get-job-state-bulk-api-v2 doc:name="Get job state bulk api v 2" doc:id="ba9688fa-d92f-44f9-ac2b-c84e68b681ab" config-ref="Salesforce_Config" id="7505j000005rhAtAAI" />
+		<ee:transform doc:name="Transform Message" doc:id="c992a75c-8af6-448a-a528-512be27e2858" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getQueryJobInfoBulkApiFlow" doc:id="af6141b8-4b87-416c-bd35-52e6ada5846b" >
+		<http:listener doc:name="/getqueryjobinfo" doc:id="8bb1ea34-6a5b-4da3-8256-babaa2feb67b" config-ref="HTTP_Listener_config" path="/getqueryjobinfo" />
+		<salesforce:get-query-job-info-bulk-api-v2 doc:name="Get query job info bulk api v 2" doc:id="ee8b55ab-7f2e-4c74-8578-f151b988cdc8" config-ref="Salesforce_Config" id="7505j000005rhAtAAI" />
+		<ee:transform doc:name="Transform Message" doc:id="42d3e6b7-a71a-4ab5-a003-86e8a87338a7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getServerTimestampFlow" doc:id="03824beb-2786-4f39-9c46-efd428946a94" >
+		<http:listener doc:name="/getservertimestamp" doc:id="52c654b7-c45c-4466-bec0-a382fe87ed7d" config-ref="HTTP_Listener_config" path="/getservertimestamp" />
+		<salesforce:get-server-timestamp doc:name="Get server timestamp" doc:id="0e2f6d79-aea9-42ac-9aba-8fe9f0931286" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="73880fdf-457d-4983-8804-9af40ab32402" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getUpdatedObjectsFlow" doc:id="83b72390-a022-4f8b-a0ab-d55335cc821f" >
+		<http:listener doc:name="/getupdatedobjects" doc:id="e9b7619d-392b-4ea7-b284-396b17995ad0" config-ref="HTTP_Listener_config" path="/getupdatedobjects" />
+		<salesforce:get-updated objectType="Account" doc:name="Get updated objects" doc:id="41fc8968-e806-42d1-91ba-5f51575b0396" config-ref="Salesforce_Config" startDate="2022-06-01" endDate="2022-06-15" />
+		<ee:transform doc:name="Transform Message" doc:id="9f2bdbc4-a5f4-4362-b59f-c01adcfa4d6b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getUserInfoFlow" doc:id="373b1dad-a766-4516-9ee9-14b57e26098b" >
+		<http:listener doc:name="/getuserinfo" doc:id="746a28eb-73a5-40af-8cce-7dcbd0eed50b" config-ref="HTTP_Listener_config" path="/getuserinfo" />
+		<salesforce:get-user-info doc:name="Get user info" doc:id="5ee2f442-1a4c-4b86-9629-3623cc3d6209" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="80a66845-036d-46cf-9ea8-28bc3b8067a7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-getQueryJobResultsBulkApiFlow" doc:id="98565687-7419-48c7-8d40-322c39af4189" >
+		<http:listener doc:name="Copy_of_/getqueryjobresults" doc:id="85dd9de5-2281-49cf-9878-097e5628867b" config-ref="HTTP_Listener_config" path="/getqueryjobresults" />
+		<salesforce:get-query-job-results-bulk-api-v2 doc:name="Copy_of_Get query job results bulk api v 2" doc:id="99e0ac1d-156b-4a82-ba80-49fa5a4b7ee9" config-ref="Salesforce_Config" id='#["7505j000005sRf9AAE"]' />
+		<ee:transform doc:name="Copy_of_Transform Message" doc:id="588edfd0-f191-4a56-a928-4b15f0077e8a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

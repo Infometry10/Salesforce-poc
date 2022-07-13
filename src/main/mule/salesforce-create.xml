@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-createFlow" doc:id="e890dcb7-7b7e-4f26-83cc-99a514aec25b" >
+		<http:listener doc:name="/create" doc:id="7d298de0-496b-4c1c-9473-6a0f165f7e96" config-ref="HTTP_Listener_config" path="/create" />
+		<ee:transform doc:name="Transform Message" doc:id="615bc36b-c08a-4960-a60d-0071b5a9c35c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Name: $.name,
+	Phone: $.number,
+	BillingCity: $.billingCity,
+	BillingCountry: $.billingCountry
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="Account" doc:name="Create" doc:id="ce4dbecc-6b89-4ba3-9889-9103aa535949" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="7c9bdd53-06de-4d3f-b878-3e3ad9b83ed2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-createJobFlow" doc:id="0b0fa4a3-7c58-4b27-aad6-1c984e68b85a" >
+		<http:listener doc:name="/createjob" doc:id="338a7aa1-1c0a-4e9e-8690-ce687056e18d" config-ref="HTTP_Listener_config" path="/createjob" />
+		<ee:transform doc:name="Transform Message" doc:id="be4a70aa-d14b-45e9-872c-2dea07a9b013" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+    "externalIdFieldName": "ExternalId",
+    "contentType" : "JSON",
+    "concurrencyMode": "Serial"  //Serial or Parallel
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-job operation="queryAll" type="Account" doc:name="Create job" doc:id="73772e45-962f-40f2-89f4-c091e58831bb" config-ref="Salesforce_Config" >
+			<salesforce:create-job-request ><![CDATA[#[payload]]]></salesforce:create-job-request>
+		</salesforce:create-job>
+		<ee:transform doc:name="Transform Message" doc:id="abbefca7-f596-4777-b308-79b64dd6e52d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-createJobBulkApiFlow" doc:id="eda675b9-e42b-43d3-98ee-12af89fbdd09" >
+		<http:listener doc:name="/jobbulkapi" doc:id="bd421360-9b71-44bc-ab78-a288eef72ae0" config-ref="HTTP_Listener_config" path="/jobbulkapi" />
+		<ee:transform doc:name="Transform Message" doc:id="81b05368-5482-4801-9754-539ee3f0f062" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	Id: "0015j00000WdvP7AAJ",
+	IsDeleted: false,
+	Name: "Prathamesh",
+	Type: "Customer-Direct",
+	BillingState: "UK",
+	Phone: "222-8987"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-job-bulk-api-v2 objectType="Account" operation="insert" doc:name="Create job bulk api v 2" doc:id="deeb977b-1805-4b74-a3c9-453d522d9836" config-ref="Salesforce_Config" externalIdFieldName="Id" />
+		<ee:transform doc:name="Transform Message" doc:id="cbf06a06-45fc-4c23-ab91-96b34ee958e3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-createQueryJobBulkApiFlow" doc:id="20292942-921b-40a8-a57e-90a8d5c7353a" >
+		<http:listener doc:name="/queryjob" doc:id="8e5fe4b3-2359-4178-bca4-64b7b9d1efd2" config-ref="HTTP_Listener_config" path="/queryjob" />
+		<salesforce:create-query-job-bulk-api-v2 doc:name="Create query job bulk api v 2" doc:id="8409cf4f-d5c6-46d2-881f-d105ac0a5f29" config-ref="Salesforce_Config" query="SELECT Id FROM Account" />
+		<ee:transform doc:name="Transform Message" doc:id="367182e7-d74e-4b69-b4bc-9278bce0ffb1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-createBatchFlow" doc:id="43436f83-8d08-4838-99c2-5ca7e0fe11e7" >
+		<http:listener doc:name="/createbatch" doc:id="d4264c7d-21ff-4079-8552-512d5b50df70" config-ref="HTTP_Listener_config" path="/createbatch" />
+		<ee:transform doc:name="Transform Message" doc:id="8894fc6c-97e3-40b2-bba6-673614ed5666" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+
+"name": "Nikhil",
+"billingCity": "Pune",
+"number": "555-6666",
+"billingCountry": "India",
+"billingState": "IND"
+},
+{
+
+"name": "Akshay",
+"billingCity": "Miami",
+"number": "111-2222",
+"billingCountry": "United-States",
+"billingState": "US"
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-batch doc:name="Create batch" doc:id="317009e9-1722-4e71-89a3-0ac43cabcd1c" config-ref="Salesforce_Config" >
+			<salesforce:job-info-batch contentType="JSON" externalIdFieldName='#[""]' id='#["7505j000005sNTsAAM"]' object='#["Account"]' />
+		</salesforce:create-batch>
+		<ee:transform doc:name="Transform Message" doc:id="f780d05c-bee7-4840-a96d-691ed2d854f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-createBatchForQueryFlow" doc:id="6dbff18d-fcc6-4047-9c0e-ddb7254fc47b" >
+		<http:listener doc:name="/createbatchforquery" doc:id="66908372-7545-4f35-ad6e-80556fd34219" config-ref="HTTP_Listener_config" path="/createbatchforquery" />
+		<salesforce:create-batch-for-query doc:name="Create batch for query" doc:id="e5830567-bf73-4445-8ab5-b72251acb915" config-ref="Salesforce_Config" >
+			<salesforce:job-info-batch-for-query contentType="JSON" externalIdFieldName='#[""]' id='#["7505j000007JjJxAAK"]' object='#["Account"]' operation="queryAll" />
+			<salesforce:batch-query ><![CDATA[SELECT Name,BillingState,Phone,Type,OwnerID from Account ]]></salesforce:batch-query>
+		</salesforce:create-batch-for-query>
+		<ee:transform doc:name="Transform Message" doc:id="21a65334-fc50-4725-813e-185522c227fb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-createBatchStreamFlow" doc:id="902d207e-039b-4fef-b80a-0a7dcb4c7f75" >
+		<http:listener doc:name="/createbatchstream" doc:id="63a63e5d-0305-42c1-a875-7e0810f8c78e" config-ref="HTTP_Listener_config" path="/createbatchstream" />
+		<salesforce:create-batch-stream doc:name="Create batch stream" doc:id="256edf0f-bae1-42bd-bf15-91a13a123ee6" config-ref="Salesforce_Config" >
+			<salesforce:job-info-batch-stream contentType="JSON" externalIdFieldName='#[""]' id='#["7505j000005sZcrAAE"]' object='#["Account"]' />
+			<salesforce:stream ><![CDATA[#["chatter"]]]></salesforce:stream>
+		</salesforce:create-batch-stream>
+		<ee:transform doc:name="Transform Message" doc:id="c580dffb-687c-424c-9578-56c10dcb2420" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-createMetadataFlow" doc:id="a6dc6698-09b6-4794-803e-9c166235ab89" >
+		<http:listener doc:name="/createmetadata" doc:id="ff90be02-58ad-48ca-a2dd-e78499585606" config-ref="HTTP_Listener_config" path="/createmetadata" />
+		<ee:transform doc:name="Transform Message" doc:id="3d2200a0-ad80-4468-800c-cfeda1921c28" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	enableAccountHistoryTracking: false,
+	enableAccountInsightsInMobile: false,
+	enableAccountOwnerReport: false,
+	enableAccountTeams: false,
+	enableContactHistoryTracking: true,
+	enableRelateContactToMultipleAccounts: true,
+	fullName: "Prathamesh Kadam",
+	showViewHierarchyLink: true
+} ]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create-metadata type="AccountSettings" doc:name="Create metadata" doc:id="4a9ecb4e-16bb-44bd-8247-2e37ea7ae260" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="0086dbe7-750f-4988-b45d-af93388fb3f3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

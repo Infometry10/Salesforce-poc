@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-findDuplicatesFlow" doc:id="8d74f2a8-9bda-4d04-b8bf-d155c6535df5" >
+		<http:listener doc:name="/findduplicates" doc:id="f62637cb-3616-47bc-877e-7a8feeb8a183" config-ref="HTTP_Listener_config" path="/findduplicates" />
+		<ee:transform doc:name="Transform Message" doc:id="bdf13ebe-8953-4551-b7bf-0e7601d9fa15" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	Id: "0015j00000WdvP8AAJ",
+	IsDeleted: false,
+	Name: "Ajinkya Mane",
+	Type: "Customer-Channel",
+	ShippingState: "US",
+	Phone: "333-1254"
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:find-duplicates type="Account" doc:name="Find duplicates" doc:id="2a8b50df-0819-46ab-b4ff-849d33a2abcc" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="e1aea107-a0bf-4b04-82f2-270812fe766d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-findDuplicatesByIdFlow" doc:id="ee9d4680-0349-4f75-ab83-1bb5d01d011e" >
+		<http:listener doc:name="/findduplicatesbyid" doc:id="eb18794a-266b-4b85-9952-2847db1b5d22" config-ref="HTTP_Listener_config" path="/findduplicatesbyid" />
+		<salesforce:find-duplicates-by-ids doc:name="Find duplicates by ids" doc:id="b7a45bef-528b-4228-b8bc-5cbe549e7b5e" config-ref="Salesforce_Config" >
+			<salesforce:ids ><![CDATA[#[["0015j00000WdvP8AAJ","0015j00000WdvP7AAJ"]]]]></salesforce:ids>
+		</salesforce:find-duplicates-by-ids>
+		<ee:transform doc:name="Transform Message" doc:id="fdaee4be-a873-41f8-9526-aa332c8f685c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

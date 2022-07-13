@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-updateFlow" doc:id="af55e4a1-047a-46b3-b9fd-a505e2ac4519" >
+		<http:listener doc:name="/update" doc:id="fe1ae21f-cd5f-4682-a436-d2a870ea23cb" config-ref="HTTP_Listener_config" path="/update" />
+		<ee:transform doc:name="Transform Message" doc:id="9bf32992-44d9-40ee-993e-8b595a35dfe7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Id: $.id,
+	Name: $.name,
+	BillingCity: $.billingCity,
+	Phone: $.number,
+	BillingCountry: $.billingCountry,
+	BillingState: $.billingState
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:update type="Account" doc:name="Update" doc:id="a1f3e1a2-4cc7-4bdd-834b-5d3a60784ecd" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="56592694-76c7-4940-928b-734cdc70a742" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-updateMetadataFlow" doc:id="7c7de9e0-685d-470c-9ac1-659dd07064d1" >
+		<http:listener doc:name="/updatemetadata" doc:id="9b0306dc-1e9b-4518-a09b-c84a256c9588" config-ref="HTTP_Listener_config" path="/updatemetadata" />
+		<ee:transform doc:name="Transform Message" doc:id="d1412979-badc-4a65-8f4e-825e700450d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	fullName: "Prathamesh Kadam"
+} as Object {
+	class : "com.sforce.soap.metadata.AccountSettings"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:update-metadata type="AccountSettings" doc:name="Update metadata" doc:id="6d6aaa6a-2545-4c6c-832d-1492bbd7701c" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="60a01fd5-0118-414e-801c-0a7ba99139d6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-mergeFlow" doc:id="9eef7c56-4e67-4d9c-9195-77eb202fd09a" >
+		<http:listener doc:name="/merge" doc:id="4c8a825e-9cc3-4a9d-b4dd-b6ed43205901" config-ref="HTTP_Listener_config" path="/merge" />
+		<salesforce:query doc:name="Query" doc:id="329cf417-1acc-4ca9-8eea-f781ae8fbccf" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[SELECT Id from Account WHERE Name = 'Ajinkya Mane']]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="b5389291-e729-4833-af96-f00f9512f623" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload.Id]" doc:name="Set Variable" doc:id="fd76ed63-bae1-4cce-8f70-b649bcd5b25b" variableName="accountId1" />
+		<salesforce:query doc:name="Query" doc:id="f3bf5e56-9d9a-4ae2-b31f-07674c6d8c58" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[SELECT Id from Account WHERE Name = 'sForce' or Name='GenePoint']]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="b98acd8a-9e00-4dfd-971e-5fadf6998dbb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="#[payload.Id]" doc:name="Set Variable" doc:id="b3a622d5-6b4b-49fd-bef4-a19c8d662877" variableName="accountId2" />
+		<ee:transform doc:name="Transform Message" doc:id="b0d30c0d-8db0-4c57-b2b0-2046e310fa15" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+vars.accountId2]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:merge type="Account" doc:name="Merge" doc:id="ee65318e-7a7d-48c9-8aee-e31729b4cdb3" config-ref="Salesforce_Config" >
+			<salesforce:ids ><![CDATA[#[vars.accountId2]]]></salesforce:ids>
+			<salesforce:master-record ><![CDATA[#[{Id: vars.accountId1[0]}]]]></salesforce:master-record>
+		</salesforce:merge>
+		<ee:transform doc:name="Transform Message" doc:id="f0edf5d3-e8c8-4d91-af78-a9f089f7388c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-mergeMultipleFlow" doc:id="de1f0ba8-0eaf-46e8-b47b-8b1bf7359adc" >
+		<http:listener doc:name="/mergemultiple" doc:id="0b0a9c54-6271-4e6f-a7f1-ebffbc890317" config-ref="HTTP_Listener_config" path="/mergemultiple" />
+		<ee:transform doc:name="Transform Message" doc:id="2496ccea-9218-4a48-9ca1-36e60e1015ce" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[{
+	masterRecord: {"Id": "0015j00000g8jaAAAQ",
+    "type": "Account"
+	},
+	recordToMergeIds: ["0015j000008H5ZwAAK"]
+} as Object {
+	class : "org.mule.extension.salesforce.api.param.MergeRecord"
+}]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:merge-multiple doc:name="Merge multiple" doc:id="1b94df16-3814-4ac1-afdc-0b99e28c3f4c" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="6798bf9b-d14f-4d56-aacd-8ce81b9ff0d1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

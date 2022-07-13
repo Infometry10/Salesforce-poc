@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-publishPlatformEventMessageFlow" doc:id="be4a2f9b-d457-49c7-ad2f-c2c05ecb1aa4" >
+		<http:listener doc:name="/publishplatformevent" doc:id="b3b38efc-9f73-4fed-93a2-c0e35383fa99" config-ref="HTTP_Listener_config" path="/publishplatformevent" />
+		<ee:transform doc:name="Transform Message" doc:id="3addcd3d-40b9-4c2c-8399-6817345a4f65" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+ output application/java
+---
+ [{
+     Name__c: payload.name,
+     Id__c: payload.id
+ }]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:publish-platform-event-message platformEventName="Users__e" doc:name="Publish platform event message" doc:id="c9db104d-3519-44ad-bc6a-1f947f457b95" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="5438968a-78aa-4b0c-976a-b090c6a6d88a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-publishStreamingChannelFlow" doc:id="f7b60462-2560-4fd4-9752-63f56fddf36e" >
+		<http:listener doc:name="/publishstreamingchannel" doc:id="1ac933d0-6e99-4021-ab46-7090a88df0f6" config-ref="HTTP_Listener_config" path="/publishstreamingchannel" />
+		<salesforce:publish-streaming-channel doc:name="Publish streaming channel" doc:id="a83d3908-621c-4bcb-9db3-c432602a0b74" config-ref="Salesforce_Config" channelName="/u/TestChannel" description="TestChannel" />
+		<ee:transform doc:name="Transform Message" doc:id="7b180517-6945-4bfe-a713-2ebc5cb703d8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-publishTopicFlow" doc:id="1a13b567-d11b-4dd1-9a74-b5063fe30b4b" >
+		<http:listener doc:name="/publishtopic" doc:id="7e0197cd-234d-4b8c-a24e-9d21109528a6" config-ref="HTTP_Listener_config" path="/publishtopic" />
+		<salesforce:publish-topic doc:name="Publish topic" doc:id="89141647-00e0-45ab-9cec-da86f1d4aea0" config-ref="Salesforce_Config" topicName="Account" query="SELECT Id, Name FROM Account " description="Get records from account" />
+		<ee:transform doc:name="Transform Message" doc:id="563a1d0c-9b3f-4b04-b6e6-8b75a5f7d98e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

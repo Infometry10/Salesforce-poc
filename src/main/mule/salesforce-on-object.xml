@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-onDeletedObjectFlow" doc:id="09849bff-d836-43b9-863d-38ff0a80ce6e" >
+		<salesforce:deleted-object-listener objectType="Account" doc:name="On Deleted Object" doc:id="72eba29c-42b3-4a29-9260-ff9cc91ae38a" config-ref="Salesforce_Config" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:deleted-object-listener>
+		<ee:transform doc:name="Transform Message" doc:id="d0ebee89-f3ec-4fa9-a3c8-98b5f4b4944a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6af155f6-24d4-406f-bc39-6dabdbc176c4" message="#[payload]" />
+	</flow>
+	<flow name="salesforce-onModifiedObjectFlow" doc:id="27ee7677-abee-43b2-9bdb-6b5c511d930d" >
+		<salesforce:modified-object-listener objectType="Account" doc:name="On Modified Object" doc:id="5065e822-c2e4-4cc8-add8-c4bc4bdd17ac" config-ref="Salesforce_Config" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:modified-object-listener>
+		<ee:transform doc:name="Transform Message" doc:id="0f7a4d6b-f614-4562-86cf-f5fb8bba9d60" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="83007105-55fb-489d-93c4-d845facf40a3" message="#[payload]" />
+	</flow>
+	<flow name="salesforce-onNewObjectFlow" doc:id="e62e4fe1-50c9-4bde-aaa4-41d22c6f174e" >
+		<salesforce:new-object-listener objectType="Account" doc:name="On New Object" doc:id="429d1b54-388a-4f76-b702-b8b133aafbd5" config-ref="Salesforce_Config" >
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:new-object-listener>
+		<ee:transform doc:name="Transform Message" doc:id="1f466066-07e3-42e6-b46d-847a4f5ad08f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="e49294fd-bcc2-4504-84a6-c5fc3574d5cc" message="#[payload]" />
+	</flow>
+</mule>

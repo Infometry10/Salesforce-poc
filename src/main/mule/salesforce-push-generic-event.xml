@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-pushGenericEventFlow" doc:id="20e0ecd6-89ad-459d-972c-eb5cecb95db1" >
+		<http:listener doc:name="/pushgenericevent" doc:id="6b5438e6-5f7a-4857-86cf-59fe8341d0cb" config-ref="HTTP_Listener_config" path="/pushgenericevent" />
+		<ee:transform doc:name="Transform Message" doc:id="e2af90f9-7e64-46bb-b9ff-a4a8bbbaadab" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+--- 
+[{
+"payload": "Hello Salesforce ",
+"userIds": []
+}]
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:push-generic-event doc:name="Push generic event" doc:id="d9a47205-d59b-40f9-873f-1e569a4a2e7b" config-ref="Salesforce_Config" channelId="0M65j000000Kz5bCAC" />
+		<ee:transform doc:name="Transform Message" doc:id="d6888c25-4e5b-41e2-97ff-9089490cfb50" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

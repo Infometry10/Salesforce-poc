@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-replayChannelListenerFlow" doc:id="27d72a88-bc41-4dba-9434-c146400229ef" >
+		<salesforce:replay-channel-listener streamingChannel="/u/TestChannel" replayOption="ONLY_NEW" doc:name="Replay channel listener" doc:id="195d24c4-1a79-4559-ab97-7f87312a6ef5" config-ref="Salesforce_Config" />
+		<logger level="INFO" doc:name="Logger" doc:id="a5b6c1f2-2aaa-41b0-8d9f-9ef9b75a296b" message="#[payload]" />
+	</flow>
+</mule>

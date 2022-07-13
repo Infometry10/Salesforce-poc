@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-queryFlow" doc:id="dad18a29-b052-4d9e-a2ae-3b0b0e780de1" >
+		<http:listener doc:name="/query" doc:id="329e658f-b906-4641-8084-6918eecbbcc6" config-ref="HTTP_Listener_config" path="/query" />
+		<salesforce:query doc:name="Query" doc:id="294eebc5-5ac4-4b06-b8a5-ee8e09293cd8" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[Select Name,BillingState,Phone,Type,OwnerID from Account where Name=':Name']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	Name : "Prathamesh"
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="bcd97af7-e309-4e9f-9e05-fd5043576c76" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-queryAllFlow" doc:id="fb75fc41-3104-46ec-9c50-4e082268f9f3" >
+		<http:listener doc:name="/queryall" doc:id="2c565132-0cd4-42a8-91f4-73e6a4c67122" config-ref="HTTP_Listener_config" path="/queryall" />
+		<salesforce:query-all doc:name="Query all" doc:id="2fed0bf9-3ab5-4d36-98dd-a7e3d38d2cb4" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[Select Name,BillingState,Phone,Type,OwnerID from Account ]]></salesforce:salesforce-query>
+		</salesforce:query-all>
+		<ee:transform doc:name="Transform Message" doc:id="cbec52cb-430d-461e-9dcf-68268fc87524" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-queryXmlStreamFlow" doc:id="42278735-8232-4ee0-b003-59776ac09cee" >
+		<http:listener doc:name="/queryxmlstream" doc:id="a005b782-301d-4d2d-9566-aa3db7ef5990" config-ref="HTTP_Listener_config" path="/queryxmlstream" />
+		<salesforce:query-xml-stream doc:name="Query xml stream" doc:id="0cbf97ba-7933-41c8-b87b-3b1e395614e6" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[Select Name,BillingState,Phone,Type,OwnerID from Account ]]></salesforce:salesforce-query>
+		</salesforce:query-xml-stream>
+		<ee:transform doc:name="Transform Message" doc:id="fbd637a4-c196-4c06-906d-8942103e2faf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-queryResultListFlow" doc:id="3956f631-ab6b-4814-ad5a-97102dc3f340" >
+		<http:listener doc:name="/queryresultlist" doc:id="66be409b-1649-4556-bc95-b964944ccee2" config-ref="HTTP_Listener_config" path="/queryresultlist" />
+		<ee:transform doc:name="Transform Message" doc:id="6a84973b-642c-477a-8d26-f9d416635636" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000007X2jgAAC",
+	jobId: "7505j000007JjJxAAK"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:query-result-list doc:name="Query result list" doc:id="197129c5-2112-472b-93a2-fd50050fb123" config-ref="Salesforce_Config" contentType="JSON" />
+		<ee:transform doc:name="Transform Message" doc:id="2f00f7d9-2bed-4052-815c-5c3eda6a4b8d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-queryResultStreamFlow" doc:id="7ae4edcf-5f4a-450f-b122-e3e928966d4e" >
+		<http:listener doc:name="/queryresultstream" doc:id="213ebb52-49a1-4fdd-b077-6c2ead7d23ff" config-ref="HTTP_Listener_config" path="/queryresultstream" />
+		<ee:transform doc:name="Transform Message" doc:id="c27a6b33-16e8-4574-83a0-084d7c0108b2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	apexProcessingTime: 0,
+	apiActiveProcessingTime: 0,
+	id: "7515j000007X2jgAAC",
+	jobId: "7505j000007JjJxAAK",
+	numberRecordsFailed: 0,
+	numberRecordsProcessed: 0,
+	state: "Queued",
+	stateMessage: "null",
+	totalProcessingTime: 0
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:query-result-stream doc:name="Query result stream" doc:id="4dabda01-11c4-4a2b-8edc-738314318920" config-ref="Salesforce_Config" contentType="JSON" />
+		<ee:transform doc:name="Transform Message" doc:id="77e29051-a4e8-4cba-86c9-901f8ca27dc3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-queryResultStreamByIdFlow" doc:id="c70c8f56-2ef5-46d1-9c04-75e406e1a0bd" >
+		<http:listener doc:name="/queryresultstreambyid" doc:id="3c5be07a-aa58-4621-9b3d-c1ef1cbd8758" config-ref="HTTP_Listener_config" path="/queryresultstreambyid" />
+		<ee:transform doc:name="Transform Message" doc:id="f193b2fd-26de-4199-96df-ff96272305fa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	apexProcessingTime: 0,
+	apiActiveProcessingTime: 0,
+	id: "7515j000007X2jgAAC",
+	jobId: "7505j000007JjJxAAK",
+	numberRecordsFailed: 0,
+	numberRecordsProcessed: 0,
+	state: "Queued",
+	stateMessage: "null",
+	totalProcessingTime: 0
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:query-result-stream-by-id doc:name="Query result stream by id" doc:id="a675b9c6-cfe3-4e94-8c8b-0f7d3b22868f" config-ref="Salesforce_Config" >
+			<salesforce:result-id ><![CDATA[#["7525j000003s4qf"]]]></salesforce:result-id>
+		</salesforce:query-result-stream-by-id>
+		<ee:transform doc:name="Transform Message" doc:id="b5a555e4-51e2-4674-80bb-49cac13ac4bb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

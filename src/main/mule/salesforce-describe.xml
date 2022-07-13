@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-describeGlobalFlow" doc:id="e533d8e8-9924-4d1e-bfb9-2ae8f7e3b2ab" >
+		<http:listener doc:name="/describeglobal" doc:id="dd2f8498-0870-4dcf-87b2-19f352a2a1a9" config-ref="HTTP_Listener_config" path="/describeglobal" />
+		<salesforce:describe-global doc:name="Describe global" doc:id="e22c34d3-2def-4768-b2d3-95b37228f259" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="ce8692b0-4816-4ead-96ea-63a1ee9fe83b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-describeMetadataFlow" doc:id="b81e6d39-1b6c-4a96-9a13-5c6b2e2b523b" >
+		<http:listener doc:name="/describemetadata" doc:id="d992bf9b-162f-43f7-87da-db6b8a718199" config-ref="HTTP_Listener_config" path="/describemetadata" />
+		<salesforce:describe-metadata doc:name="Describe metadata" doc:id="af4d04b4-4e12-45f1-8de5-d9f7a857f23b" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="bba0e560-3153-4042-800e-264f0d990c64" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-describeSobjectFlow" doc:id="a1f8666d-495f-44b5-b0eb-272a6686fa5d" >
+		<http:listener doc:name="/describesobject" doc:id="b9e7e667-583b-42fb-80a6-12efb6dfe9a8" config-ref="HTTP_Listener_config" path="/describesobject" />
+		<salesforce:describe-sobject type="Account" doc:name="Describe sobject" doc:id="519c7a47-3b69-491b-84cd-652580ee7d2a" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="db470323-c249-4890-abaf-38f0a7295031" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

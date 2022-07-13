@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-searchFlow" doc:id="01887727-df9c-4342-98ab-7a13dd3ecb85" >
+		<http:listener doc:name="/search" doc:id="f2a96f9d-8c83-4728-a41a-c0a2f215cb47" config-ref="HTTP_Listener_config" path="/search" />
+		<salesforce:search doc:name="Search" doc:id="ab8fffa6-1d31-4bed-b5f6-732237238296" config-ref="Salesforce_Config" >
+			<salesforce:search-string ><![CDATA[FIND {:searchQuery}
+IN Name FIELDS
+RETURNING Account (Id, Name)]]></salesforce:search-string>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	searchQuery : attributes.queryParams.query
+}]]]></salesforce:parameters>
+		</salesforce:search>
+		<ee:transform doc:name="Transform Message" doc:id="cc98b390-b000-47f2-8e73-5bf09de4bcbe" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-closeJobFlow" doc:id="29b68888-e98f-452f-a694-4f2f2b04363a" >
+		<http:listener doc:name="/closejob" doc:id="7ef57037-6a87-4b1c-b33c-f0c9cfac42e2" config-ref="HTTP_Listener_config" path="/closejob" />
+		<salesforce:close-job doc:name="Close job" doc:id="98af7e3d-6494-46ed-8fad-9e0d1475e270" config-ref="Salesforce_Config" jobId='#["7505j000005sRUaAAM"]' />
+		<ee:transform doc:name="Transform Message" doc:id="35b39416-1482-4006-aa22-abf764f51973" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-renameMetadataFlow" doc:id="b29df634-2462-45c1-a65a-c8f93ebfe961" >
+		<http:listener doc:name="/renamemetadata" doc:id="d2e91d88-3f02-454d-9442-8b83e945c95b" config-ref="HTTP_Listener_config" path="/renamemetadata" />
+		<salesforce:rename-metadata type="AccountSettings" doc:name="Rename metadata" doc:id="62cbf648-654a-4294-ab13-bce4f3e79f8d" config-ref="Salesforce_Config" oldFullName='#["Prathamesh Kadam"]' newFullName='#["Sumanth Dasari"]' />
+		<ee:transform doc:name="Transform Message" doc:id="486853dc-84db-46b4-8748-c3712a274807" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

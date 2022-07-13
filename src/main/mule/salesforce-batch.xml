@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-batchInfoFlow" doc:id="73d85046-a1a5-431d-a970-edf413dd648c" >
+		<http:listener doc:name="/batchinfo" doc:id="e359a22a-23af-42d0-a971-b38278ad50f9" config-ref="HTTP_Listener_config" path="/batchinfo" />
+		<ee:transform doc:name="Transform Message" doc:id="5c654d7f-fa38-4b7a-87a6-3df91f0b621f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000006Q66fAAC",
+	jobId: "7505j000005sNTsAAM"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:batch-info doc:name="Batch info" doc:id="bd17e235-9a27-42f5-a1ee-daa1bb134410" config-ref="Salesforce_Config" contentType="JSON" />
+		<ee:transform doc:name="Transform Message" doc:id="8dd5fc2c-45bd-4259-bfb6-a77480dd101d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-batchInfoListFlow" doc:id="0100a8bb-aa38-4447-afb6-7d9e94da357c" >
+		<http:listener doc:name="/batchinfolist" doc:id="72c6cee0-d6bd-446c-8db1-e9d44d50e8a0" config-ref="HTTP_Listener_config" path="/batchinfolist" />
+		<salesforce:batch-info-list doc:name="Batch info list" doc:id="7f218402-b3cb-4751-b3e1-3c1145e22ee0" config-ref="Salesforce_Config" jobId='#["7505j000005sNTsAAM"]' contentType="JSON" />
+		<ee:transform doc:name="Transform Message" doc:id="0675fcc3-5cdb-40c3-b75b-152672f9827b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-batchResultFlow" doc:id="2a989415-98bc-4828-b986-20d043ad8564" >
+		<http:listener doc:name="/batchresult" doc:id="70810a55-3a01-4d90-8f74-6cfa415cb4c1" config-ref="HTTP_Listener_config" path="/batchresult" />
+		<ee:transform doc:name="Transform Message" doc:id="7b0fda01-df72-4df0-8156-130a63f9f53b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000006Q66fAAC",
+	jobId: "7505j000005sNTsAAM",
+	numberRecordsFailed: 0,
+	numberRecordsProcessed: 0,
+	state: "Failed",
+	stateMessage: "Unable to read request: No content to map to Object due to end of input"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:batch-result doc:name="Batch result" doc:id="0ddf847f-bc5e-4b6c-8a7a-610c104f0104" config-ref="Salesforce_Config" contentType="JSON" />
+		<ee:transform doc:name="Transform Message" doc:id="d634bc30-4154-4a3c-a63b-02da82c7d2c2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-batchResultStreamFlow" doc:id="d832e4ab-da1d-45ce-9978-a9e67dfae301" >
+		<http:listener doc:name="/batchresultstream" doc:id="d2020357-cae0-4e87-9f47-7426181f6f33" config-ref="HTTP_Listener_config" path="/batchresultstream" />
+		<ee:transform doc:name="Transform Message" doc:id="d41896a2-3ee4-4155-91d6-f27756a42285" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	id: "7515j000006Q66fAAC",
+	jobId: "7505j000005sNTsAAM",
+	numberRecordsFailed: 0,
+	numberRecordsProcessed: 0,
+	state: "Failed",
+	stateMessage: "Unable to read request: No content to map to Object due to end of input"
+} as Object {
+	class : "org.mule.extension.salesforce.api.bulk.BatchInfo"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:batch-result-stream doc:name="Batch result stream" doc:id="8caf83cf-b71f-4b3d-b208-36e189b3d612" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="bf116075-718a-46ce-bea1-38153a6f6f65" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

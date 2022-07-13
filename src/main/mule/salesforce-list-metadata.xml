@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-listMetadataFlow" doc:id="c4103c29-c484-424f-a8dd-4e41631cb3ec" >
+		<http:listener doc:name="/listmetadata" doc:id="1ea4e49b-3398-455b-a403-098e4669e77d" config-ref="HTTP_Listener_config" path="/listmetadata" />
+		<salesforce:list-metadata type="ApexClass" doc:name="List metadata" doc:id="bd5b3793-99cf-4028-a528-ecaff3c8eec0" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="5b1620b3-3582-4a91-99f1-067e46c89c41" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

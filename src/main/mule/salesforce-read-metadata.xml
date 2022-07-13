@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-readMetadataFlow" doc:id="a6adf8f4-e29e-469c-8f8b-ec11b66966b0" >
+		<http:listener doc:name="/readmetadata" doc:id="297f0556-5d22-4616-b826-4f14ed5776be" config-ref="HTTP_Listener_config" path="/readmetadata" />
+		<ee:transform doc:name="Transform Message" doc:id="dde99f4c-9008-4f71-a4cc-cbe8108638e5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+["Prathamesh Kadam"]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:read-metadata type="AccountSettings" doc:name="Read metadata" doc:id="e348ddb7-9b59-47d1-b649-83ea1a9ad75f" config-ref="Salesforce_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="259dbc09-4a12-45e7-9b8d-2d9be6e17fa4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

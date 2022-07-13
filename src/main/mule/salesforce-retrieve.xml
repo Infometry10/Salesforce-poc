@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-retrieveJobFailedResultsBulkFlow" doc:id="4e858f9a-43c0-4e92-93df-38f0d2bbe4ae" >
+		<http:listener doc:name="/retrievejobfailed" doc:id="00e5fcd5-ac8e-45ca-9cb6-858b47bc3c30" path="/retrievejobfailed" config-ref="HTTP_Listener_config"/>
+		<salesforce:retrieve-job-failed-results-bulk-v2 doc:name="Retrieve job failed results bulk v 2" doc:id="611fb4b2-62ae-4403-b9d8-e00869be05b8" id="7505j000005s0xLAAQ" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="9e0e31aa-6923-45f7-8f45-b71a30dec8d1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-retrieveJobSuccessfulResultsBulkFlow" doc:id="f2985d10-1e55-45a4-b3d3-a17738387d7e" >
+		<http:listener doc:name="/retrievejobsuccessful" doc:id="57e35c2c-8d7d-4c6c-8ff5-723a71bda16f" path="/retrievejobsuccessful" config-ref="HTTP_Listener_config"/>
+		<salesforce:retrieve-job-successful-results-bulk-v2 doc:name="Retrieve job successful results bulk v 2" doc:id="9cd512a3-0270-4178-bb86-8afdb47d902b" id="7505j000005s0xLAAQ" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="28073f5d-089d-4dd8-a9a7-7a4308f5b110" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-retrieveJobUnprocessedResultsBulkFlow" doc:id="f1e35330-693a-4599-bf3d-f894ba1745e6" >
+		<http:listener doc:name="/retrievejobunprocessed" doc:id="26081cbc-46f9-49e2-8782-4aff5706ea4e" path="/retrievejobunprocessed" config-ref="HTTP_Listener_config"/>
+		<salesforce:retrieve-job-unprocessed-results-bulk-v2 doc:name="Retrieve job unprocessed results bulk v 2" doc:id="e8b718e0-aef6-452a-9c71-54c742eea48f" id="7505j000005s0xLAAQ" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="7db49bcd-0340-41fa-bcf1-eb5c36e9f55c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="salesforce-retrieveFlow" doc:id="0039b974-aadf-4026-804e-940ce91d98da" >
+		<http:listener doc:name="/retrieve" doc:id="127792b5-b9a2-414c-8066-f97d532e35ea" path="/retrieve" config-ref="HTTP_Listener_config"/>
+		<ee:transform doc:name="Transform Message" doc:id="5efed92d-0cac-414b-9698-eda385c36326" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	fields: ["Id"],
+	ids: ["0015j00000WdvP8AAJ" , "0015j00000g8jaAAAQ"]
+} as Object {
+	class : "org.mule.extension.salesforce.api.core.RetrieveRequest"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:retrieve type="Account" doc:name="Retrieve" doc:id="a6568567-1a75-4de2-968a-fa3216f50673" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="c9ee6706-e172-4ff5-be31-5f97bab36ae2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

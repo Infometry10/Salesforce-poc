@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="salesforce-jobInfoFlow" doc:id="20911787-b6c9-41b9-9bf0-95ae5f378e18" >
+		<http:listener doc:name="/jobinfo" doc:id="56b0e5cf-9998-4727-88da-ab08f5830c2b" config-ref="HTTP_Listener_config" path="/jobinfo" />
+		<salesforce:job-info doc:name="Job info" doc:id="7db79f00-588f-4342-9234-b1b49dffe596" config-ref="Salesforce_Config" jobId="7505j000005rl8SAAQ" />
+		<ee:transform doc:name="Transform Message" doc:id="d9040e00-f65d-4d39-89b2-936c0b3acc95" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
